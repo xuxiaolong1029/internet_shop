@@ -1,0 +1,232 @@
+diff --git a/node_modules/uview-ui/components/.DS_Store b/node_modules/uview-ui/components/.DS_Store
+new file mode 100644
+index 0000000..5582f58
+Binary files /dev/null and b/node_modules/uview-ui/components/.DS_Store differ
+diff --git a/node_modules/uview-ui/components/u-form-item/u-form-item.vue b/node_modules/uview-ui/components/u-form-item/u-form-item.vue
+index 3a7c031..5548207 100644
+--- a/node_modules/uview-ui/components/u-form-item/u-form-item.vue
++++ b/node_modules/uview-ui/components/u-form-item/u-form-item.vue
+@@ -10,7 +10,8 @@
+ 				marginBottom: elLabelPosition == 'left' ? 0 : '10rpx',
+ 			}">
+ 				<!-- 为了块对齐 -->
+-				<view class="u-form-item--left__content" v-if="required || leftIcon || label">
++				<!--辣鸡的产品 根据业务需求修改新增START-->
++				<view @tap.stop="onItemClick" class="u-form-item--left__content" v-if="required || leftIcon || label">
+ 					<!-- nvue不支持伪元素before -->
+ 					<text v-if="required" class="u-form-item--left__content--required">*</text>
+ 					<view class="u-form-item--left__content__icon" v-if="leftIcon">
+@@ -21,6 +22,10 @@
+ 					}]">
+ 						{{label}}
+ 					</view>
++					<view class="u-form-item--right__content__icon" v-if="itemRightIcon">
++						<u-icon :name="itemRightIcon" :custom-style="itemRightIconStyle"></u-icon>
++					</view>
++					<!--根据业务需求修改新增END-->
+ 				</view>
+ 			</view>
+ 			<view class="u-form-item--right u-flex">
+@@ -124,6 +129,18 @@
+ 				type: String,
+ 				default: ''
+ 			},
++			// 辣鸡的产品 左侧item的右边图标
++			itemRightIcon:{
++				type: String,
++				default: ''
++			},
++			// 辣鸡的产品 左侧item的右边图标样式
++			itemRightIconStyle:{
++				type: Object,
++				default () {
++					return {}
++				}
++			},
+ 			// 左侧图标的样式
+ 			leftIconStyle: {
+ 				type: Object,
+@@ -217,6 +234,9 @@
+ 			}
+ 		},
+ 		methods: {
++			onItemClick(){
++				this.$emit('onItemClick')
++			},
+ 			broadcastInputError() {
+ 				// 子组件发出事件，第三个参数为true或者false，true代表有错误
+ 				this.broadcast('u-input', 'on-form-item-error', this.validateState === 'error' && this.showError('border'));
+@@ -392,7 +412,8 @@
+ 				&__label {
+ 					@include vue-flex;
+ 					align-items: center;
+-					flex: 1;
++					/*业务需要注释掉*/
++					/*flex: 1;*/
+ 				}
+ 			}
+ 		}
+diff --git a/node_modules/uview-ui/components/u-link/u-link.vue b/node_modules/uview-ui/components/u-link/u-link.vue
+index e849c7d..fdacfff 100644
+--- a/node_modules/uview-ui/components/u-link/u-link.vue
++++ b/node_modules/uview-ui/components/u-link/u-link.vue
+@@ -58,6 +58,11 @@
+ 		},
+ 		methods: {
+ 			openLink() {
++				/* 自定义逻辑 */
++				if(!this.href){
++					this.$emit('onClick')
++					return
++				}
+ 				// #ifdef APP-PLUS
+ 				plus.runtime.openURL(this.href)
+ 				// #endif
+diff --git a/node_modules/uview-ui/components/u-parse/.DS_Store b/node_modules/uview-ui/components/u-parse/.DS_Store
+new file mode 100644
+index 0000000..ee30b14
+Binary files /dev/null and b/node_modules/uview-ui/components/u-parse/.DS_Store differ
+diff --git a/node_modules/uview-ui/components/u-picker/u-picker.vue b/node_modules/uview-ui/components/u-picker/u-picker.vue
+index 3ed0524..3afbb1e 100644
+--- a/node_modules/uview-ui/components/u-picker/u-picker.vue
++++ b/node_modules/uview-ui/components/u-picker/u-picker.vue
+@@ -21,6 +21,8 @@
+ 				</view>
+ 			</view>
+ 			<view class="u-picker-body">
++				<!--解决支付宝报错的问题-->
++				<!-- #ifndef MP-ALIPAY -->
+ 				<picker-view v-if="mode == 'region'" :value="valueArr" @change="change" class="u-picker-view" @pickstart="pickstart" @pickend="pickend">
+ 					<picker-view-column v-if="!reset && params.province">
+ 						<view class="u-column-item" v-for="(item, index) in provinces" :key="index">
+@@ -38,6 +40,56 @@
+ 						</view>
+ 					</picker-view-column>
+ 				</picker-view>
++				<!-- #endif -->
++				<!-- #ifdef MP-ALIPAY -->
++				<picker-view v-if="mode == 'region'" :value="valueArr" @change="change" class="u-picker-view" @pickstart="pickstart" @pickend="pickend">
++					<picker-view-column>
++						<view class="u-column-item" v-for="(item, index) in provinces" :key="index">
++							<view class="u-line-1">{{ item.label }}</view>
++						</view>
++					</picker-view-column>
++					<picker-view-column>
++						<view class="u-column-item" v-for="(item, index) in citys" :key="index">
++							<view class="u-line-1">{{ item.label }}</view>
++						</view>
++					</picker-view-column>
++					<picker-view-column>
++						<view class="u-column-item" v-for="(item, index) in areas" :key="index">
++							<view class="u-line-1">{{ item.label }}</view>
++						</view>
++					</picker-view-column>
++				</picker-view>
++				<!-- #endif -->
++				<picker-view v-if="mode == 'provinces'" :value="valueArr" @change="change" class="u-picker-view" @pickstart="pickstart" @pickend="pickend">
++					<picker-view-column>
++						<view class="u-column-item" v-for="(item, index) in provinces" :key="index">
++							<view class="u-line-1">{{ item.label }}</view>
++						</view>
++					</picker-view-column>
++				</picker-view>
++
++				<!-- 自定义新增date类型 兼容支付宝小程序报错问题-->
++				<picker-view v-else-if="mode == 'date'" :value="valueArr" @change="change" class="u-picker-view" @pickstart="pickstart" @pickend="pickend">
++					<picker-view-column>
++						<view class="u-column-item" v-for="(item, index) in years" :key="index">
++							{{ item }}
++							<text class="u-text" v-if="showTimeTag">年</text>
++						</view>
++					</picker-view-column>
++					<picker-view-column>
++						<view class="u-column-item" v-for="(item, index) in months" :key="index">
++							{{ formatNumber(item) }}
++							<text class="u-text" v-if="showTimeTag">月</text>
++						</view>
++					</picker-view-column>
++					<picker-view-column>
++						<view class="u-column-item" v-for="(item, index) in days" :key="index">
++							{{ formatNumber(item) }}
++							<text class="u-text" v-if="showTimeTag">日</text>
++						</view>
++					</picker-view-column>
++				</picker-view>
++
+ 				<picker-view v-else-if="mode == 'time'" :value="valueArr" @change="change" class="u-picker-view" @pickstart="pickstart" @pickend="pickend">
+ 					<picker-view-column v-if="!reset && params.year">
+ 						<view class="u-column-item" v-for="(item, index) in years" :key="index">
+@@ -404,6 +456,20 @@ export default {
+ 					this.valueArr.push(0);
+ 					this.setSeconds();
+ 				}
++			}else if (this.mode == 'date') { // 自定义 兼容支付宝 新增的类型
++				this.initTimeValue();
++				if (this.params.year) {
++					this.valueArr.push(0);
++					this.setYears();
++				}
++				if (this.params.month) {
++					this.valueArr.push(0);
++					this.setMonths();
++				}
++				if (this.params.day) {
++					this.valueArr.push(0);
++					this.setDays();
++				}
+ 			} else if (this.mode == 'region') {
+ 				if (this.params.province) {
+ 					this.valueArr.push(0);
+@@ -417,6 +483,11 @@ export default {
+ 					this.valueArr.push(0);
+ 					this.setAreas();
+ 				}
++			} else if (this.mode == 'provinces') {
++				if (this.params.province) {
++					this.valueArr.push(0);
++					this.setProvinces();
++				}
+ 			} else if (this.mode == 'selector') {
+ 				this.valueArr = this.defaultSelector;
+ 			} else if (this.mode == 'multiSelector') {
+@@ -537,11 +608,19 @@ export default {
+ 				if (this.params.hour) this.hour = this.hours[this.valueArr[i++]];
+ 				if (this.params.minute) this.minute = this.minutes[this.valueArr[i++]];
+ 				if (this.params.second) this.second = this.seconds[this.valueArr[i++]];
++			}else if (this.mode == 'date') {
++				// 这里使用i++，是因为this.valueArr数组的长度是不确定长度的，它根据this.params的值来配置长度
++				// 进入if规则，i会加1，保证了能获取准确的值
++				if (this.params.year) this.year = this.years[this.valueArr[i++]];
++				if (this.params.month) this.month = this.months[this.valueArr[i++]];
++				if (this.params.day) this.day = this.days[this.valueArr[i++]];
+ 			} else if (this.mode == 'region') {
+ 				if (this.params.province) this.province = this.valueArr[i++];
+ 				if (this.params.city) this.city = this.valueArr[i++];
+ 				if (this.params.area) this.area = this.valueArr[i++];
+-			} else if (this.mode == 'multiSelector') {
++			} else if (this.mode == 'provinces') {
++				if (this.params.province) this.province = this.valueArr[i++];
++			}else if (this.mode == 'multiSelector') {
+ 				let index = null;
+ 				// 对比前后两个数组，寻找变更的是哪一列，如果某一个元素不同，即可判定该列发生了变化
+ 				this.defaultSelector.map((val, idx) => {
+@@ -571,11 +650,18 @@ export default {
+ 				if (this.params.minute) result.minute = this.formatNumber(this.minute || 0);
+ 				if (this.params.second) result.second = this.formatNumber(this.second || 0);
+ 				if (this.params.timestamp) result.timestamp = this.getTimestamp();
++			} else if (this.mode == 'date') {
++				if (this.params.year) result.year = this.formatNumber(this.year || 0);
++				if (this.params.month) result.month = this.formatNumber(this.month || 0);
++				if (this.params.day) result.day = this.formatNumber(this.day || 0);
++				if (this.params.timestamp) result.timestamp = this.getTimestamp();
+ 			} else if (this.mode == 'region') {
+ 				if (this.params.province) result.province = provinces[this.province];
+ 				if (this.params.city) result.city = citys[this.province][this.city];
+ 				if (this.params.area) result.area = areas[this.province][this.city][this.area];
+-			} else if (this.mode == 'selector') {
++			} else if (this.mode == 'provinces') {
++				if (this.params.province) result.province = provinces[this.province];
++			}else if (this.mode == 'selector') {
+ 				result = this.valueArr;
+ 			} else if (this.mode == 'multiSelector') {
+ 				result = this.valueArr;

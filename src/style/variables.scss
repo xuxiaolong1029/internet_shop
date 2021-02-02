@@ -1,0 +1,33 @@
+$white: #ffffff;
+$gray-300:            #dee2e6;
+$black:               #000;
+
+
+$primary:             #3071EA;
+$success:             #12CE8A;
+$warning:             #FF9C00;
+$danger:              #FF4949;
+$light:               #f8f9fa;
+$dark:                #343a40;
+//背景
+$bg-color:            #f4f4f4;
+$bg-color-blue:		  #F5F8FF;
+//分割线
+$line:                #D9D9D9;
+
+$font-family-B:       PingFang-SC-Bold;
+$font-family-M:       PingFang-SC-Medium;
+
+/* 文字尺寸 */
+$font-s-sm:           24rpx;
+$font-s-base:         28rpx;
+$font-s-lg:           32rpx;
+$font-s-llg:          36rpx;
+
+/* 文字基本颜色 */
+$text-color:             #333333;//基本色
+$text-color-grey:        #999;//辅助灰色，如加载更多的提示信息
+$text-color-med-grey:    #666;//中灰，例如副标题
+$text-color-placeholder: #bbb;
+$text-color-disable:     #c0c0c0;
+$text-color-money:       $warning;//金额

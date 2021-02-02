@@ -1,0 +1,52 @@
+
+@mixin bg-image($url) {
+  background-image: url("/static/" + $url + "_2x.png");
+  background-size: 100%;
+  -webkit-background-size: 100%;
+  @media (-webkit-min-device-pixel-ratio: 3), (min-device-pixel-ratio: 3) {
+    background-size: 100%;
+    -webkit-background-size: 100%;
+    background-image: url("/static/" + $url + "_3x.png");
+  }
+}
+
+@mixin ellipsis_1($width) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-text-overflow: ellipsis;
+  -moz-text-overflow: ellipsis;
+  white-space: nowrap;
+  width: $width;
+}
+//多行文本溢出
+@mixin morelineEllipsis($line:2) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: $line;
+  autoprefixer: off;
+  -webkit-box-orient: vertical;
+  autoprefixer: on;
+  word-break: break-all;
+}
+@mixin zoom-animation($direction:'top',$scaleStart:scaleY(0),$scaleEnd:scaleY(1),$origin:center top){
+   .zoom-in-#{$direction}-enter {
+     opacity: 0;
+     transform: $scaleStart;
+   }
+   .zoom-in-#{$direction}-enter-active {
+     opacity: 1;
+     transform: $scaleEnd;
+     transition: transform 300ms cubic-bezier(0.23, 1, 0.32, 1) 100ms, opacity 300ms cubic-bezier(0.23, 1, 0.32, 1) 100ms;
+     transform-origin: $origin
+   }
+   .zoom-in-#{$direction}-exit {
+     opacity: 1;
+   }
+   .zoom-in-#{$direction}-exit-active {
+     opacity: 0;
+     transform: $scaleStart;
+     transition: transform 300ms cubic-bezier(0.23, 1, 0.32, 1) 100ms, opacity 300ms cubic-bezier(0.23, 1, 0.32, 1) 100ms;
+     transform-origin: $origin;
+   }
+}

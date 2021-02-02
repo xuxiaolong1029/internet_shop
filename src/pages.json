@@ -1,0 +1,235 @@
+{
+	"easycom": {
+		"^u-(.*)": "uview-ui/components/u-$1/u-$1.vue"
+	},
+	"pages": [ //pages数组中第一项表示应用启动页
+
+		{
+			"path": "pages/tabBar/home/index",
+			"style": {
+				"navigationBarTitleText": ""
+			}
+		},
+
+		{
+			"path": "pages/report/query/index",
+			"style": {
+				"navigationBarTitleText": "查报告"
+			}
+		},
+		{
+			"path": "pages/search/index",
+			"style": {
+				"navigationBarTitleText": "搜索"
+			}
+		},
+
+		{
+			"path": "pages/pay/waitLog/index",
+			"style": {
+				"navigationBarTitleText": "交费"
+			}
+		},
+		{
+			"path": "pages/archives/patients/index",
+			"style": {
+				"navigationBarTitleText": "我的就诊人"
+			}
+		},
+
+
+		{
+			"path": "pages/archives/patients/add/index",
+			"style": {
+				"navigationBarTitleText": "添加就诊人"
+			}
+		},
+
+
+		{
+			"path": "pages/archives/onlineFile/index",
+			"style": {
+				"navigationBarTitleText": "在线建档"
+			}
+		},
+
+		{
+			"path": "pages/archives/patients/edit/index",
+			"style": {
+				"navigationBarTitleText": "就诊人"
+			}
+		},
+
+
+		{
+			"path": "pages/hospital/department/index",
+			"style": {
+				"navigationBarTitleText": "重点科室"
+			}
+		},
+		{
+			"path": "pages/hospital/department/detail",
+			"style": {
+				"navigationBarTitleText": "重点科室"
+			}
+		},
+		{
+			"path": "pages/hospital/doctor/detail",
+			"style": {
+				"navigationBarTitleText": "专家骨干"
+			}
+		},
+		{
+			"path": "pages/hospital/doctor/index",
+			"style": {
+				"navigationBarTitleText": "专家骨干"
+			}
+		},
+		{
+			"path": "pages/hospital/info/index",
+			"style": {
+				"navigationBarTitleText": "医院简介"
+			}
+		},
+
+		{
+			"path": "pages/archives/patients/bind/index",
+			"style": {
+				"navigationBarTitleText": "绑定患者信息"
+			}
+		},
+
+		{
+			"path": "pages/tabBar/user/index",
+			"style": {
+				"navigationBarTitleText": "我的"
+			}
+		},{
+			"path": "pages/tabBar/user/setting",
+			"style": {
+				"navigationBarTitleText": "设置"
+			}
+		},{
+			"path": "pages/register/selectHospital/index",
+			"style": {
+				"navigationBarTitleText": "挂号"
+			}
+		},{
+			"path": "pages/register/selectDepartment/index",
+			"style": {
+				"navigationBarTitleText": "挂号"
+			}
+		},{
+			"path": "pages/register/selectDoctor/index",
+			"style": {
+				"navigationBarTitleText": ""
+			}
+		},{
+			"path": "pages/register/doctorPage/index",
+			"style": {
+				"navigationBarTitleText": "医生主页"
+			}
+		},{
+			"path": "pages/register/confirmRegister/index",
+			"style": {
+				"navigationBarTitleText": "预约挂号"
+			}
+		},{
+			"path": "pages/register/registerResult/index",
+			"style": {
+				"navigationBarTitleText": "预约挂号"
+			}
+		},
+		{
+			"path": "pages/register/record/index",
+			"style": {
+				"navigationBarTitleText": "我的挂号",
+				"mp-alipay":{"allowsBounceVertical":"NO"} // 支付宝和钉钉小程序取消自带的回弹
+			}
+		},{
+			"path": "pages/register/record/details",
+			"style": {
+				"navigationBarTitleText": "我的挂号"
+			}
+		},
+		{
+			"path": "pages/auth/index",
+			"style": {
+				"navigationBarTitleText": "授权"
+			}
+		},
+		{
+			"path": "pages/pay/confirmPay/index",
+			"style": {
+				"navigationBarTitleText": "交费"
+			}
+		},
+		{
+			"path": "pages/pay/record/index",
+			"style": {
+				"navigationBarTitleText": "交费记录",
+				"mp-alipay":{"allowsBounceVertical":"NO"} // 支付宝和钉钉小程序取消自带的回弹
+			}
+		},{
+			"path": "pages/pay/record/details",
+			"style": {
+				"navigationBarTitleText": "交费记录"
+			}
+		},
+		{
+			"path": "pages/pay/payResult/index",
+			"style": {
+				"navigationBarTitleText": "交费"
+			}
+		},
+
+		{
+			"path": "pages/report/record/details",
+			"style": {
+				"navigationBarTitleText": "报告查询"
+			}
+		},
+		{
+			"path": "pages/report/record/image",
+			"style": {
+				"navigationBarTitleText": "查看大图"
+			}
+		}
+	],
+	"tabBar": {
+		"color": "#BBBBBB",
+		"selectedColor": "#3071EA",
+		"borderStyle": "white",
+		"backgroundColor": "#ffffff",
+		"list": [
+			{
+				"pagePath": "pages/tabBar/home/index",
+				"iconPath": "static/img/home.png",
+				"selectedIconPath": "static/img/home_active.png",
+				"text": "首页"
+			},{
+				"pagePath": "pages/tabBar/user/index",
+				"iconPath": "static/img/user.png",
+				"selectedIconPath": "static/img/user_active.png",
+				"text": "我的"
+			}
+		]
+	},
+	"globalStyle": {
+		"backgroundColorTop":"#FFFFFF", // iOS APP真机bounce回弹区域默认灰色,需重置为白色
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "uni-app",
+		"navigationBarBackgroundColor": "#FFF",
+		"backgroundColor": "#F8F8F8"
+	},
+	"condition" : { // 开发时，我们可以指定启动页面，启动项目需要在pages.json中配置，可以配置多项，然后运行时进行选择。
+		"current": 0, //当前激活的模式(list 的索引项)
+		"list": [
+			{
+				"name": "", //模式名称
+				"path": "", //启动页面，必选
+				"query": "" //启动参数，在页面的onLoad函数里面得到
+			}
+		]
+	}
+}

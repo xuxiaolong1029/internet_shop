@@ -1,0 +1,75 @@
+
+:root{
+	--padd-left:40rpx;
+}
+
+.hover-style{
+	opacity: 0.8;
+}
+//.border-b{border-bottom: solid 1rpx $border-color-d9d9d9;}
+//.border-t{border-top: solid 1rpx $border-color-d9d9d9;}
+
+
+/* 弹性布局 */
+.flex-r-center{display: flex;flex-direction: row;justify-content:center;align-items:center;}
+.flex-r{display: flex;}
+.flex-r-s-center{display: flex;flex-direction: row;align-items:center;}
+.flex-r-sb-center{display: flex;justify-content: space-between;align-items: center;}
+.flex-r-end{display: flex;justify-content: flex-end;align-items: center;}
+
+.flex-c{display: flex;flex-direction: column;}
+.flex-c-sb{display: flex;flex-direction: column;justify-content: space-between;}
+.flex-c-center{display: flex;flex-direction: column;justify-content: center;align-items: center}
+
+.page-top-border{
+	border-top: 1rpx solid $line;
+}
+.search-default{
+	background-color: #FFFFFF;
+	padding: 16rpx 20rpx;
+	/deep/ {
+		.u-input{
+			font-size: $font-s-sm !important;
+			line-height: $font-s-sm;
+			background-color: $bg-color !important;
+			padding-top: 0;
+			padding-bottom: 0;
+			color: $text-color !important;
+			padding-left: 0;
+		}
+		.u-icon__icon{
+			font-size: $font-s-sm !important;
+			color: #BBBBBB !important;
+		}
+		.u-content{
+			background-color: $bg-color !important;
+			height: 56rpx !important;
+		}
+	}
+}
+
+/*表单使用的公共样式*/
+.form-common-wrapper {
+	.u-form-item{
+		padding: 9rpx 30rpx 9rpx 0!important;
+	}
+	.remark{
+		.u-form-item--left{width: 0!important;}
+		&.bespoke-info{
+			.u-form-item{
+				padding-right: 10rpx!important;
+			}
+		}
+	}
+}
+
+/*附属信息页面的公共背景图片*/
+.set-bg-com{
+	padding-top: 140px;
+	width: 100%;
+	position: relative;
+	background-repeat: no-repeat;
+	background-size: 100% 180px;
+}
+
+
