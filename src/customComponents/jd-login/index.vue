@@ -1,17 +1,17 @@
 <template>
-    <jd-alert-container :show="showMask" @close="close" height="510rpx">
+    <jd-alert-container :show="showMask" @close="close" height="510rpx" bottom="400">
         <view class="warp-from">
             <view class="title">请验证手机号</view>
             <view class="des">该业务需要，请您先验证手机号</view>
             <view class="input-item">
                 <view class="form-input form-input1">
-                    <input class="input" type="number" maxlength="11" @blur="blurPhone" autocomplete="off" v-model="checkForm.mobile" placeholder-style="color:#bbb;font-size:28rpx;" name="mobile" placeholder="请输入手机号" />
+                    <input class="input" :adjust-position="false" type="number" maxlength="11" @blur="blurPhone" autocomplete="off" v-model="checkForm.mobile" placeholder-style="color:#bbb;font-size:28rpx;" name="mobile" placeholder="请输入手机号" />
                 </view>
                 <view class="error" v-if="mobileErrTip">{{mobileErrTip}}</view>
             </view>
             <view class="input-item" style="margin-bottom:60rpx">
                 <view  class="form-input form-input2">
-                    <input class="input" type="number" maxlength="6" autocomplete="off" v-model="checkForm.verifyCode" placeholder-style="color:#bbb;font-size:28rpx;" name="verifyCode" placeholder="请输入短信验证码" />
+                    <input class="input" :adjust-position="false" type="number" maxlength="6" autocomplete="off" v-model="checkForm.verifyCode" placeholder-style="color:#bbb;font-size:28rpx;" name="verifyCode" placeholder="请输入短信验证码" />
                 </view>
                 <view class="code-bottom" @click="getCode">
                     <text :style="{color:isSmsDisabled?'#999':'#3071EA'}">{{smsButtonText}}</text>
@@ -158,7 +158,8 @@
                     }
                 }
             },
-            blurPhone(){
+            blurPhone(event){
+                console.log(event)
                 if(this.checkForm.mobile){
                     if(!(/^1[3456789]\d{9}$/.test(this.checkForm.mobile))){
                         this.mobileErrTip = '手机号格式错误';

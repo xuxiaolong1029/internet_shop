@@ -129,6 +129,7 @@
 			.time{
 				width: 190rpx;
 				font-size:$font-s-lg;
+				white-space: nowrap;
 			}
 			.number{
 				margin-left: 80rpx;

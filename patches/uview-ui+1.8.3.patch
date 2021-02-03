@@ -1,11 +1,16 @@
 diff --git a/node_modules/uview-ui/components/.DS_Store b/node_modules/uview-ui/components/.DS_Store
 new file mode 100644
-index 0000000..5582f58
-Binary files /dev/null and b/node_modules/uview-ui/components/.DS_Store differ
+index 0000000..e69de29
 diff --git a/node_modules/uview-ui/components/u-form-item/u-form-item.vue b/node_modules/uview-ui/components/u-form-item/u-form-item.vue
-index 3a7c031..5548207 100644
+index 3a7c031..df62700 100644
 --- a/node_modules/uview-ui/components/u-form-item/u-form-item.vue
 +++ b/node_modules/uview-ui/components/u-form-item/u-form-item.vue
+@@ -1,4 +1,4 @@
+-<template>
++ <template>
+ 	<view class="u-form-item" :class="{'u-border-bottom': elBorderBottom, 'u-form-item__border-bottom--error': validateState === 'error' && showError('border-bottom')}">
+ 		<view class="u-form-item__body" :style="{
+ 			flexDirection: elLabelPosition == 'left' ? 'row' : 'column'
 @@ -10,7 +10,8 @@
  				marginBottom: elLabelPosition == 'left' ? 0 : '10rpx',
  			}">
@@ -21,7 +26,7 @@ index 3a7c031..5548207 100644
  						{{label}}
  					</view>
 +					<view class="u-form-item--right__content__icon" v-if="itemRightIcon">
-+						<u-icon :name="itemRightIcon" :custom-style="itemRightIconStyle"></u-icon>
++						<u-icon color="#ccc" :name="itemRightIcon" :custom-style="itemRightIconStyle"></u-icon>
 +					</view>
 +					<!--根据业务需求修改新增END-->
  				</view>
@@ -66,6 +71,19 @@ index 3a7c031..5548207 100644
  				}
  			}
  		}
+diff --git a/node_modules/uview-ui/components/u-input/u-input.vue b/node_modules/uview-ui/components/u-input/u-input.vue
+index 2712ae3..72bc1df 100644
+--- a/node_modules/uview-ui/components/u-input/u-input.vue
++++ b/node_modules/uview-ui/components/u-input/u-input.vue
+@@ -57,7 +57,7 @@
+ 		/>
+ 		<view class="u-input__right-icon u-flex">
+ 			<view class="u-input__right-icon__clear u-input__right-icon__item" @tap="onClear" v-if="clearable && value != '' && focused">
+-				<u-icon size="32" name="close-circle-fill" color="#c0c4cc"/>
++				<u-icon size="42" name="close-circle-fill" color="#c0c4cc"/>
+ 			</view>
+ 			<view class="u-input__right-icon__clear u-input__right-icon__item" v-if="passwordIcon && type == 'password'">
+ 				<u-icon size="32" :name="!showPassword ? 'eye' : 'eye-fill'" color="#c0c4cc" @click="showPassword = !showPassword"/>
 diff --git a/node_modules/uview-ui/components/u-link/u-link.vue b/node_modules/uview-ui/components/u-link/u-link.vue
 index e849c7d..fdacfff 100644
 --- a/node_modules/uview-ui/components/u-link/u-link.vue
@@ -230,3 +248,17 @@ index 3ed0524..3afbb1e 100644
  				result = this.valueArr;
  			} else if (this.mode == 'multiSelector') {
  				result = this.valueArr;
+diff --git a/node_modules/uview-ui/components/u-search/u-search.vue b/node_modules/uview-ui/components/u-search/u-search.vue
+index 232e73e..dde364d 100644
+--- a/node_modules/uview-ui/components/u-search/u-search.vue
++++ b/node_modules/uview-ui/components/u-search/u-search.vue
+@@ -35,7 +35,8 @@
+ 					backgroundColor: bgColor,
+ 				}, inputStyle]"
+ 			/>
+-			<view class="u-close-wrap" v-if="keyword && clearabled && focused" @tap="clear">
++<!--		辣鸡产品瞎该需求	<view class="u-close-wrap" v-if="keyword && clearabled && focused" @tap="clear">-->
++			<view class="u-close-wrap" v-if="keyword && clearabled" @tap="clear">
+ 				<u-icon class="u-clear-icon" name="close-circle-fill" size="34" color="#c0c4cc"></u-icon>
+ 			</view>
+ 		</view>

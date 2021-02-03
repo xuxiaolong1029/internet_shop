@@ -47,9 +47,6 @@ export default {
 	.info-row {
 		display: flex;
 		align-items: center;
-		& + .info-row{
-			margin-top: 20rpx;
-		}
 		.ir-label {
 			width: 112rpx;
 			flex-grow: 0;

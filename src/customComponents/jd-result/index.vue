@@ -41,7 +41,7 @@
              * 顶部边距
              */
             marginTop:{
-                type: String,
+                type: [String,Number],
                 default: ''
             },
 			textStyle:{

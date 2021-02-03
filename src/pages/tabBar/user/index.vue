@@ -14,9 +14,10 @@
 					<u-icon style="margin-left:8rpx;" name="arrow-right" color="#fff" size="18"></u-icon>
 				</view>
 			</view>
+<!--
 			<view class="user-info-set" @click="goSet">
 				<image src="../../../static/img/user/set.png" mode="scaleToFill"></image>
-			</view>
+			</view>-->
 		</view>
 		<view class="person">
 			<view class="top"><jd-card title="我的" icon-type="''"></jd-card></view>

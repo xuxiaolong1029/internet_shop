@@ -94,7 +94,8 @@
 				userInfo: {},
 				hospitalInfo: {},
 				list: [],
-				queryLoading:true
+				queryLoading:true,
+				outpatientId: '',	//就诊人id
 			};
 		},
 
@@ -136,12 +137,40 @@
 			async getPatientsList(){
 				try {
 					this.cardInfoList = await this.getMyPatientCard(this.orgCode)
-					this.currenParent = this.cardInfoList.length? this.cardInfoList[0] : {}
-					await this.queryReportList()
+					this.currenParent = this.currenParent || (this.cardInfoList.length ? this.cardInfoList[0] : {})
+                    if(this.outpatientId===''){
+                        // 选中之前选择的就诊人
+                        let cParent = uni.getStorageSync('currenParent')
+                        if(cParent!=null && this.cardInfoList && this.cardInfoList.length>0){
+                            this.selectPatients(this.cardInfoList,'cardId',cParent.cardId)
+                        }
+                        await this.queryReportList()
+                    }
 					await this.getOutPatientList(this.cardInfoList||[])
-
+					if(this.outpatientId!==''){
+						this.selectPatients(this.outpatientList,'outpatientId', this.outpatientId)
+                        await this.queryReportList()
+						this.outpatientId = ''
+					}
 				}catch (e) {
 					console.log(e)
+				}
+			},
+			selectPatients(list,fieldName,val){
+				let idx = ''
+				let curren = {}
+				if(!list){
+					return
+				}
+				list.map((item, index) => {
+					if(item[fieldName] == val){
+						idx = index
+						curren = item
+					}
+				})
+				if(idx!==''){
+					this.currenParent = curren
+					this.patientsIndex = idx
 				}
 			},
 			async queryReportList(){
@@ -184,6 +213,7 @@
 					this.list = []
 				}else{
 					this.currenParent = item
+					uni.setStorage({key:'currenParent', data:item})
 					await this.queryReportList()
 				}
 			},

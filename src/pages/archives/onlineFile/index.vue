@@ -1,6 +1,6 @@
 <template>
     <view class="online-file form-common-wrapper">
-        <u-form :model="form" ref="uForm" label-width="180">
+        <u-form :model="form" ref="uForm" label-width="180" :error-type="['toast']">
             <jd-form-item-card>
                 <u-form-item label="医院">
                     <view style="padding: 10rpx">{{hospitalInfo.orgName}}</view>
@@ -32,14 +32,16 @@
                 </jd-form-item>
             </jd-form-item-card>
             <jd-form-item-card is-margin>
-                <u-form-item label="手机号">
+                <u-form-item label="手机号" prop="mobile">
                     <u-input v-model="form.mobile" type="number" placeholder="请在此输入手机号" />
                 </u-form-item>
-                <jd-form-item label="居住地"
-                             :right-icon-style="{color:'#ccc'}"
-                             right-icon="arrow-right"
-                             isMask
-                             @onMaskClick="showAddressPicker = !showAddressPicker"
+                <jd-form-item
+                        prop="address"
+                        label="居住地"
+                        :right-icon-style="{color:'#ccc'}"
+                        right-icon="arrow-right"
+                        isMask
+                        @onMaskClick="showAddressPicker = !showAddressPicker"
                 >
                     <u-input v-model="form.address" placeholder="请在此输入地址" />
                 </jd-form-item>
@@ -68,12 +70,14 @@
     import jdActionSheetPopupWrapper from '@/customComponents/jd-action-sheet-popup/select-type'
     import jdModal from '@/customComponents/jd-modal'
     import CONS from './config'
+    import rules from './rules'
 
     import {mapState,mapGetters} from 'vuex'
     import config from '@/config'
     const {common} = config
     export default {
         name: 'onlineFile',
+        mixins:[rules],
         components: {
             jdButton,
             jdFormItemCard,
@@ -86,8 +90,10 @@
                 form: {
                     [CONS.CERT_NO]:'',
                     [CONS.REAL_NAME]:'',
+                    [CONS.ADDRESS]:'',
+                    [CONS.MOBILE]:'',
                     staffType: common.STAFF_TYPE[0].value,
-                    certType:common.CARD_TYPE[0].value
+                    certType:common.CARD_TYPE[0].value,
                 },
                 radio: '',
                 switchVal: false,
@@ -111,6 +117,9 @@
             this.query = query
             this.getInitData(query)
         },
+        onReady() {
+            this.$refs.uForm.setRules(this.rules);
+        },
         computed:{
             // ...mapState(['orgCode','userInfo']),
             ...mapState({
@@ -129,7 +138,10 @@
             },
             originBind(){
                 return this.query.origin === 'bind'
-            }
+            },
+            isIdCardType(){
+                return this.form[CONS.CERT_TYPE] === common.CARD_TYPE[0].value
+            },
         },
         methods:{
             async getInitData({name,certNo,certType}){
@@ -143,7 +155,7 @@
                         }
                     }
                     this.setMobile()
-                    this.setLocation()
+                    // this.setLocation()
                 }
             },
             async getOutpatientInfo(){
@@ -166,7 +178,7 @@
                                 if(key === 'mobileNo' && !res[key]){
                                     this.setMobile()
                                 }else if(key === 'location' && !res[key]){
-                                    this.setLocation()
+                                    // this.setLocation()
                                 }else {
                                     this.$set(this.form,item.value ,res[key])
                                 }
@@ -177,24 +189,27 @@
             },
             async addSubmit(){
                 try {
-                    const {userId} = uni.getStorageSync('userInfo') || {}
-                    let params ={
-                        orgCode:this.orgCode,
-                        userId,
-                        ...this.form,
-                    }
-                    const res = await this.$api.user_archives_create(params)
-                    this.$refs.jdModal._success({
-                        title:`在线建档成功`,
-                        content:`${this.form.realName}的登记号是${res.registNum}`,
-                        confirmText:'好的',
-                        success:async(res)=>{
-                            if (res.confirm) {
-                                uni.navigateBack({
-                                    delta:1
-                                })
-                            }
+                    this.$refs.uForm.validate(async valid => {
+                        if(!valid) return
+                        const {userId} = uni.getStorageSync('userInfo') || {}
+                        let params ={
+                            orgCode:this.orgCode,
+                            userId,
+                            ...this.form,
                         }
+                        const res = await this.$api.user_archives_create(params)
+                        this.$refs.jdModal._success({
+                            title:`在线建档成功`,
+                            content:`${this.form.realName}的登记号是${res.registNum}`,
+                            confirmText:'好的',
+                            success:async(res)=>{
+                                if (res.confirm) {
+                                    uni.navigateBack({
+                                        delta:1
+                                    })
+                                }
+                            }
+                        })
                     })
                 }catch (e) {
                     this.$refs.jdModal._warning({

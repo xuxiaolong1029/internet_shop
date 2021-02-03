@@ -17,13 +17,13 @@
                     </view>
                     <view class="date-scope flex-r-s-center">
                         <view @click="showCalendar('start')" class="date flex-r-s-center"
-                              :class="{'has':!!dateObj.start}">
-                            {{dateObj.start || '开始时间'}}
+                              :class="{'has':!!start}">
+                            {{start || '开始时间'}}
                         </view>
                         <text class="delimiter">/</text>
                         <view @click="showCalendar('end')" class="date flex-r-s-center"
-                              :class="{'has':!!dateObj.end}">
-                            {{dateObj.end || '结束时间'}}
+                              :class="{'has':!!end}">
+                            {{end || '结束时间'}}
                         </view>
                     </view>
                 </view>
@@ -33,15 +33,17 @@
                 ref="startCalendar"
                 :insert="false"
                 :clearDate="false"
-
+                :startDate="defaultStartDate"
+                :endDate="defaultEndDate"
                 @confirm="onCalendar($event,'start')"
         />
-<!--        :startDate="defaultStartDate"-->
-<!--        :endDate="defaultEndDate"-->
+
         <uni-calendar
                 ref="endCalendar"
                 :insert="false"
                 :clearDate="false"
+                :startDate="defaultStartDate"
+                :endDate="defaultEndDate"
                 @confirm="onCalendar($event,'end')"
         />
     </view>
@@ -90,10 +92,8 @@
                 showDatePicker:false,
                 defaultStartDate: last6Month.last,
                 defaultEndDate: last6Month.now,
-                dateObj:{
-                    [START]:'',
-                    [END]:'',
-                }
+                [START]:'',
+                [END]:'',
             }
         },
         watch:{
@@ -102,12 +102,18 @@
                     if(obj.value){
                         this.recentTimeValue = obj.value;
                     }else {
-                        this.setDate(obj)
+                        this[START] = obj[START]
+                        this[END] = obj[END]
                     }
                 },
                 deep:true,
                 immediate:true
             },
+        },
+        computed:{
+            // defaultEndDate(){
+            //
+            // }
         },
         created () {
 
@@ -115,22 +121,26 @@
         methods:{
             onRecentTime(value){
                 this.recentTimeValue = value;
-                this.setDate({start:'',end:''})
+                this[START] = ''
+                this[END] = ''
             },
             showCalendar(type){
+                this.type = type
                 this.$refs[`${type}Calendar`].open();
             },
             onCalendar(event,type){
-                if(type === 'start'){
-                    this.setDate({start:event.fulldate,end:''})
+                if(type === START){
+                    this[START] = event.fulldate
                 }else {
-                    this.setDate({start:'',end:event.fulldate})
+                    this[END] = event.fulldate
                 }
-                if(start || end){
+                if(event.fulldate){
                     this.recentTimeValue = ''
                 }
             },
             setDate({start='',end=''}){
+                // if(start) this.$set(this.dateObj,START,start)
+                // else this.$set(this.dateObj,END,end)
                 this.$set(this.dateObj,START,start)
                 this.$set(this.dateObj,END,end)
             },
@@ -139,7 +149,17 @@
                 if(this.recentTimeValue){
                     item = this.recentTimeData.find(item => item.value === this.recentTimeValue) || {}
                 }else {
-                    item = {...this.dateObj}
+                    const start = new Date(this[START]).getTime()
+                    const end = new Date(this[END]).getTime()
+                    if(end <start){
+                        uni.showModal({
+                            title:'温馨提示',
+                            content:'选择的日期开始时间需小于结束时间',
+                            showCancel:false,
+                        })
+                        return
+                    }
+                    item = {[START]:this[START],[END]:this[END]}
                 }
                 this.$emit('confirm',item)
                 this._toggleShow()
@@ -150,9 +170,12 @@
             cancel(){
                 if(this.currentTimeDate.value){
                     this.recentTimeValue = this.currentTimeDate.value;
-                    this.setDate({start:'',end:''})
+                        this[START] = ''
+                        this[END] = ''
                 }else {
-                    this.setDate(this.recentTimeValue)
+                    this.recentTimeValue = ''
+                    this[START] = this.currentTimeDate[START]
+                    this[END] = this.currentTimeDate[END]
                 }
             }
         },

@@ -106,7 +106,7 @@
 		</view>
 		<jd-login ref="child"></jd-login>
 		<card-qrcode v-if="Object.keys(cardQrCodeItem).length>0" @close="cardQrCodeItem={}" :item="cardQrCodeItem" :show="Object.keys(cardQrCodeItem).length>0"></card-qrcode>
-		<select-patients-popup ref="selectPatientsPopup" title="请选择就诊人" :current="cardIndex" iconColor="#D9D9D9" @chooseList="choosePatient" @titleRightClick="goPage('/pages/archives/patients/add/index')" :list="outpatientList"  />
+		<select-patients-popup ref="selectPatientsPopup" title="请选择就诊人" :current="cardIndex" iconColor="#D9D9D9" @chooseList="choosePatient" @titleRightClick="goPage('/pages/archives/patients/add/index')" :list="outpatientList"/>
 	</view>
 </template>
 
@@ -152,14 +152,15 @@
 					{ img: '../../../static/img/home/lydh.png', title: '来院导航',url:'' }
 				],
 				subMenus: [
-					{ img: '../../../static/img/home/icon-qh.png', title: '取号', des: '在线取号候诊' },
-					{ img: '../../../static/img/home/icon-jf.png', title: '交费',des: '手机支付不排队',url:'/pages/pay/waitLog/index'},
+					{ img: '../../../static/img/home/icon-jf.png', title: '门诊交费',des: '手机支付不排队',url:'/pages/pay/waitLog/index'},
+					{ img: '../../../static/img/home/icon-jfjl.png', title: '交费记录',des: '查看交费记录',url:'/pages/pay/record/index'},
 					{ img: '../../../static/img/home/icon-cbg.png', title: '查报告', des: '检验、检查报告', url:'/pages/report/query/index' }
 				],
 				centerList: [
-					{ img:'../../../static/img/home/icon_wdgh.png', title: '我的挂号',url:'/pages/register/record/index'},
-					{ img:'../../../static/img/home/icon_jzrg.png', title: '我的就诊人',url:'/pages/archives/patients/index'},
-					{ img: '../../../static/img/home/icon-jf.png', title: '我的交费',url:'/pages/pay/record/index'},
+					{ img: '../../../static/img/user/drgh.png', title: '我的挂号',url:'/pages/register/record/index' },
+					{ img: '../../../static/img/home/icon-jfjl.png', title: '交费记录',url:'/pages/pay/record/index'},
+					{ img: '../../../static/img/user/bgcx.png', title: '我的报告',url:'/pages/report/query/index' },
+					{ img: '../../../static/img/home/icon_jzrg.png', title: '我的就诊人',url:'/pages/archives/patients/index' }
 				]
 			};
 		},

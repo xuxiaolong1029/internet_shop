@@ -2,7 +2,7 @@
     <view class="search-page page-top-border">
         <view class="nav-search">
             <view class="search-wrapper">
-                <u-search shape="square" focus search-icon-color="#BBBBBB" placeholder-color="#BBBBBB" :show-action="false" placeholder="请输入科室/医生/疾病/症状" :inputStyle="{marginLeft:-2}" v-model="searchKey" @search="searchResult" />
+                <u-search shape="square" focus search-icon-color="#BBBBBB" placeholder-color="#BBBBBB" :show-action="false" placeholder="请输入科室/医生/疾病/症状" :inputStyle="{marginLeft:-2}" v-model="searchKey" @search="searchResult" @clear="clear" />
             </view>
             <view class="gap-wrapper">
                 <u-gap height="20" bg-color="#f4f4f4" />
@@ -22,19 +22,22 @@
                         @change="tabsChange" />
             </view>
             <view v-show="tabsValue===0">
-                <u-cell-group>
-                    <u-cell-item @click="cellClick(item)" arrow
-                                 :title="item.deptName" v-for="(item, index) in deptList"
-                                 :key="item.id" :title-style="{
+                <view style="margin-top: 20rpx" v-show="deptList.length">
+                    <u-cell-group >
+                        <u-cell-item @click="cellClick(item)" arrow
+                                     :title="item.deptName" v-for="item in deptList"
+                                     :key="item.id" :title-style="{
                                  color:'#333'
 						}">
-                    </u-cell-item>
-                </u-cell-group>
+                        </u-cell-item>
+                    </u-cell-group >
+                </view>
+                <jd-result v-if="!deptList.length" :marginTop="resultMarginTop" :text="holderText" :subtext="subtext" />
             </view>
              <view v-show="tabsValue===1 && isShowContent">
                 <mescroll-body
                         ref="mescrollRef"
-                        top="197"
+                        top="195"
                         @init="mescrollInit"
                         :up="upOption"
                         :down="downOption"
@@ -47,9 +50,10 @@
                             ></jd-register-doctor>
                     </view>
                 </mescroll-body>
+                 <jd-result v-if="!doctorList.length" :marginTop="resultMarginTop" :text="holderText" :subtext="subtext" />
             </view>
         </view>
-        <jd-result v-if="!isShowContent && isSearch" marginTop="100" :text="'找不到匹配的结果'" subtext="请检查搜索关键词" />
+        <jd-result v-if="!isShowContent && isSearch" :marginTop="resultMarginTop" :text="holderText" :subtext="subtext" />
     </view>
 </template>
 
@@ -59,6 +63,7 @@
     import jdResult from '@/customComponents/jd-result'
     import { mapState } from 'vuex'
     import config from '@/config'
+    import { debounce } from '@/utils'
     const { common} = config
     export default {
         name: 'search-wrapper',
@@ -72,7 +77,6 @@
                 searchKey:'',
                 tabsValue:1,
                 tabList: [{ name: '科室' }, { name: '医生'}],
-                deptList:[],
                 doctorList:[],
                 isSearch:false,
                 downOption:{
@@ -88,6 +92,10 @@
                         size:10
                     },
                 },
+                holderText:'找不到匹配的结果',
+                subtext:'请检查搜索关键词',
+                deptList:[],
+                resultMarginTop:'400',
             }
         },
         computed:{
@@ -97,12 +105,36 @@
             },
         },
         onReady(){
+            /*
+            const query = uni.createSelectorQuery().in(this);
+            query.select('.nav-search').boundingClientRect(data => {
+                this.top = data.height + 44 + 'px'
+            }).exec();*/
+        },
+        watch:{
+            searchKey:{
+                handler:debounce(function (val) {
+                    if(val){
+                        this.searchResult()
+                    }else {
+                        this.initData()
+                    }
+                },800)
+            }
         },
         methods:{
             /*下拉刷新的回调 */
             downCallback() {
                 //联网加载数据
                 console.log('downCallback')
+            },
+            clear(){
+                this.initData()
+            },
+            initData(){
+                this.doctorList = []
+                this.deptList = []
+                this.isSearch = false
             },
             async searchResult(){
                 if(!this.searchKey) return uni.showToast({title:'请输入内容'})
@@ -120,12 +152,12 @@
             },
             async getDeptData(){
                 try {
-                    const {result=[]} = await this.$api.basedata_orgdept_list({
+                    const {result} = await this.$api.basedata_orgdept_list({
                         orgcode:this.orgcode,
-                        searchkey:this.searchkey,
-                        recommend:1
+                        searchKey:this.searchKey,
+                        level:2
                     })
-                    this.deptlist = result
+                    this.deptList = [...result] || []
                 }catch (e) {
                     console.log(e)
                 }
@@ -241,7 +273,7 @@
         @include fixed(116rpx);
         /*margin-top: 80rpx;*/
         margin-top: 0;
-        z-index: 1000;
+        z-index: 10000;
     }
     .content-wrapper{
         /*margin-top: 10px;*/

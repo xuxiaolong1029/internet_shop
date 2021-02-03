@@ -5,7 +5,12 @@
                 <u-avatar size="80" :src="item.headImgUrl" />
                 <view class="sub-info flex-c-sb">
                     <text>{{item.name}}</text>
-                    <text class="sub-t">{{getRelation(item.relation)}}</text>
+                    <jd-tag v-if="item.relation == 1"
+                            :text="getRelation(item.relation)"
+                            mode="light"
+                            type="primary"
+                    />
+                    <text v-else class="sub-t">{{getRelation(item.relation)}}</text>
                 </view>
             </view>
             <view class="right flex-r-sb-center">
@@ -24,11 +29,12 @@
     import jdIconBtn from '@/customComponents/jd-button/icon-btn'
     import jdButton from '@/customComponents/jd-button'
     import jdModal from '@/customComponents/jd-modal'
+    import jdTag from '@/customComponents/jd-tag'
     import config from '@/config'
     const {common} = config
     export default {
         name: 'patients',
-        components:{jdIconBtn,jdButton,jdModal},
+        components:{jdIconBtn,jdButton,jdModal,jdTag},
 
         data(){
             return{
@@ -111,6 +117,13 @@
                 margin-left: 20rpx;
                 .sub-t{
                     color: $text-color-grey;
+                }
+                ::v-deep.u-size-mini {
+                     font-size: 24rpx!important;
+                     padding: 4rpx 8rpx!important;
+                }
+                ::v-deep.u-tag {
+                     line-height: normal!important;
                 }
             }
             .right{

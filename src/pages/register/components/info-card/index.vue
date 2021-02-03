@@ -22,6 +22,7 @@
 </template>
 
 <script>
+	import config from '@/config';
     export default {
 		name: "infoCard",
         props:{
@@ -29,7 +30,7 @@
 				type: String,
 				default: ''
 			},
-			tag: {
+			deptLevel: {
 				type: String,
 				default: ''
 			},
@@ -42,11 +43,16 @@
 			    default: ''
 			},
         },
-        data(){
-            return{
-
-            }
-        },
+		computed:{
+			tag(){
+				let tagText = ''
+				if(this.deptLevel!=null && this.deptLevel!=''){
+					let level = config.common.DEPT_LEVEL[this.deptLevel] && config.common.DEPT_LEVEL[this.deptLevel].level
+					tagText = level? level + '重点':''
+				}
+				return tagText
+			}
+		},
         methods: {
             toCall(val) {
                 this.$emit('toCall',this.telephone)
@@ -72,6 +78,20 @@
 			overflow: hidden;
 			.title-row{
 				line-height: $font-s-lg;
+				display: flex;
+				align-items: center;
+				.tag{
+					height: 32rpx;
+					font-size:$font-s-sm;
+					padding: 0rpx 8rpx;
+					border: 1rpx solid $primary;
+					color: $primary;
+					margin-left: 12rpx;
+					border-radius: 4rpx;
+					box-sizing: border-box;
+					display: flex;
+					align-items: center;
+				}
 			}
 			.title{
 				color: $text-color;
@@ -80,17 +100,6 @@
 				white-space: nowrap;
 				overflow: hidden;
 				text-overflow: ellipsis;
-			}
-			.tag{
-				font-size:$font-s-sm;
-				line-height: 24rpx;
-				padding: 4rpx 8rpx;
-				border: 1rpx solid $primary;
-				color: $primary;
-				margin-left: 12rpx;
-				border-radius: 4rpx;
-				box-sizing: border-box;
-				display: inline-block;
 			}
 		}
 		.hi-right{

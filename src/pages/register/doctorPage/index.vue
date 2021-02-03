@@ -100,7 +100,6 @@
 			this.deptCode = option.deptCode	//科室编码
 			this.doctorCode = option.doctorCode	//医生编码
 			this.isPrompt = option.isPrompt	//没有号源是否需要提示
-
 			this.findDoctorSupNum()
 		},
 		computed: {

@@ -109,7 +109,7 @@
             }
         },
         onLoad(par){
-            this.reportType = par.reportType||"jianyan";
+            this.reportType = par.reportType||"jiancha";
             this.patient_info_message=
                 this.reportType==='jiancha'?
                     [
@@ -163,7 +163,7 @@
             async getReportDetails(par){
                 let param = {
                     orgCode: par.orgCode||"54452", //医院编码
-                    primaryId:par.primaryId||"12088229218808672256"
+                    primaryId:par.primaryId||"12088228877438435328"
                 }
                 if(this.reportType==='jiancha'){
                     this.result = await this.$api.report_examine_detail(param);

@@ -45,7 +45,7 @@
                 </jd-form-item>
             </jd-form-item-card>
 
-            <jd-form-item-card is-margin v-if="showVerifyFlag !== '0'">
+            <jd-form-item-card is-margin v-if="showVerifyFlag != 0">
                 <u-form-item label="验证码" prop="verifyCode">
                     <u-input v-model="form.verifyCode" type="number" placeholder="请在此输入验证码" />
                     <u-link @onClick="getCode" slot="right">{{tips}}</u-link>
@@ -75,7 +75,7 @@
     import mixins from '@/mixins'
     import rules from './rules'
     import config from '@/config'
-    import {navigateBack} from '@/utils'
+    import {navigateBack,trim} from '@/utils'
     import {mapState} from 'vuex'
     const {common} = config
     import CONS from './config'
@@ -136,6 +136,9 @@
             },
             isIdCardType(){
                 return this.form[CONS.PATIENT_CERT_TYPE] === common.CARD_TYPE[0].value
+            },
+            isIdGuardianCertType(){
+                return this.form[CONS.GUARDIAN_CERT_TYPE] === common.CARD_TYPE[0].value
             }
         },
         watch:{
@@ -148,7 +151,6 @@
                 const {jdModal} = this.$refs
                 this.$refs.uForm.validate(async valid => {
                     if(!valid) return
-                    console.log('orgCode',this.orgCode)
                     let params={
                         orgCode:this.orgCode,
                         sensitiveEncFlag: 0, // 不加密
@@ -170,9 +172,8 @@
                     }
 
                     for(let value of newParamsArr){
-                        params[value] = this.form[value]
+                        params[value] = trim(this.form[value])
                     }
-
                     const response = await this.$api.outpatient_info_create(params,{isResponseBody:true})
                     const {backParams} = this.query
                     if(response.code == 200){
@@ -198,11 +199,12 @@
                     }else if(response.code === '12200211'){
                         jdModal._warning({
                             title:`院内未登记此人信息`,
-                            content:`请先完成远呢日患者信息建档`,
+                            content:`请先完成院内患者信息建档`,
                             confirmText:'在线建档',
                             success:(res)=>{
                                 if (res.confirm) {
                                     this.$u.route({
+                                        type:'redirect',
                                         url:'/pages/archives/onlineFile/index',
                                         params:{
                                             origin:'add',
@@ -213,6 +215,12 @@
                                     })
                                 }
                             }
+                        })
+                    }else {
+                        jdModal._warning({
+                            title:`在线建档失败`,
+                            content:`请前往医院服务窗口办理建档`,
+                            confirmText:'好的'
                         })
                     }
                 })
@@ -257,7 +265,7 @@
             },
             onVerificationEnd(){
 
-            }
+            },
         }
     }
 </script>

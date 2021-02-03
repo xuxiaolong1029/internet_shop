@@ -1,5 +1,5 @@
 <template>
-    <view class="patients-edit page-top-border" :style="{opacity:opacity}">
+    <view class="patients-edit" :style="{opacity:opacity}">
         <u-tabs active-color="#3071EA"
                 inactive-color="#333"
                 bar-height="4"
@@ -320,6 +320,7 @@
 
 <style scoped lang="scss">
     .patients-edit {
+        @include border-1px();
         padding-bottom:50px;
         ::v-deep.u-form-item--left__content__icon {
             margin-right: 0;
@@ -332,11 +333,12 @@
         }
 
         .btn-control {
+            @include border-1px();
+            z-index: 1000;
             position: fixed;
             left: 0;
             right: 0;
             bottom: 0;
-            border-top: 1px solid #E3E3E3;
         }
     }
 </style>

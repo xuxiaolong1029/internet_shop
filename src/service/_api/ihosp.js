@@ -22,6 +22,7 @@ export const IHOSP_REGIST_PAY = `/ihosp-regist/regist/registPay`;// 挂号单支
 export const IHOSP_REGIST_QUERY_DETAIL = `/ihosp-regist/regist/registQuery`;// 挂号单查询
 export const IHOSP_REGIST_CLOSE = `/ihosp-regist/regist/registClose`;// 挂号关闭
 export const IHOSP_REGIST_CANCEL = `/ihosp-regist/regist/registCancel`;// 挂号取消
+export const IHOSP_REGIST_STRATEGY_QUERY = `/ihosp-regist/strategy/query`;  // 策略查询
 
 const ihosp_my_patient_card =  (params,options) =>  request({
     url: baseUrl + IHOSP_OUT_PATIENT_CARD_URL,
@@ -107,6 +108,10 @@ const ihosp_regist_cancel =  (params,options) =>  request({
     url: baseUrl + IHOSP_REGIST_CANCEL,
     data:params
 },options);
+const ihosp_regist_strategy_query =  (params,options) =>  request({
+    url: baseUrl + IHOSP_REGIST_STRATEGY_QUERY,
+    data:params
+},options);
 
 export default {
     ihosp_my_patient_card,
@@ -126,4 +131,5 @@ export default {
 	ihosp_regist_query_detail,
 	ihosp_regist_close,
 	ihosp_regist_cancel,
+    ihosp_regist_strategy_query,
 }

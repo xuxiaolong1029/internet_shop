@@ -83,8 +83,9 @@ export default {
         },
         onPatientsHead(){
             console.log(333)
+            this.$refs.selectPatientsPopup._toggleShow()
             this.$u.route({
-                url:'/pages/archives/patients/add/index'
+                url: `/pages/archives/patients/add/index?backParams=outpatientId`
             })
         },
         resultBtn(){

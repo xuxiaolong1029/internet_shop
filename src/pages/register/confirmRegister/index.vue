@@ -67,7 +67,7 @@
 		</view>
 
 		<!-- 支付方式 -->
-		<view class="pay-method" v-show="activePatient!=''">
+		<view class="pay-method" v-show="activePatient!=''" v-if="isNeedToPay">
 			<view class="pm-header">
 				<view class="pm-title">支付方式</view>
 			</view>
@@ -106,7 +106,7 @@
 		</view>
 
 		<!-- 操作 -->
-		<view class="bottom-options flex-r-center" v-show="activePatient != '' && currentCardNo!='' && payMethod!=''">
+		<view class="bottom-options flex-r-center" v-show="activePatient != '' && currentCardNo!='' && payMethod!=''" v-if="isNeedToPay">
 			<jd-button size="lg" style="flex:1" :btn-style="{flex:1,height:'96rpx',borderRadius: 0}">
 				<template v-if="payMethod=='yb'">
 					<view class="pay-zf-price">
@@ -123,6 +123,9 @@
 			</jd-button>
 			<jd-button size="lg" style="flex:1" :btn-style="{flex:1,height:'98rpx',borderRadius: 0}" type="primary" @submit="registerPay" >确认支付</jd-button>
 		</view>
+		<view class="bottom-options flex-r-center" v-show="activePatient != '' && currentCardNo!=''"  v-else>
+			<jd-button size="lg" style="flex:1" :btn-style="{flex:1,height:'98rpx',borderRadius: 0}" type="primary" @submit="registerPay" >确认预约</jd-button>
+		</view>
 
 		<jd-select-card
 			ref="jdSelectCard"
@@ -132,7 +135,7 @@
 			@changeCard="changeCard" @manageCard="manageCard">
 		</jd-select-card>
 
-		<jd-alert-container :show="showEditPhone" height="292rpx" width="556rpx" :showClose="false" @close="closeEditPhone">
+		<jd-alert-container :show="showEditPhone" height="292rpx" width="556" :showClose="false" @close="closeEditPhone">
 			<view class="edit-phone-alert">
 				<view class="ep-title">编辑手机号</view>
 				<view class="ep-content">
@@ -172,6 +175,8 @@
 				NUM_TYPE,
 				RELATION_TYPE,
 				CARD_TYPE_NAME,	//卡类型
+				registPreNeedToPay: false,	// 预约是否需要支付
+				loadComplete: false,	//是否加载完成
 				confirmInfo: {},
 				registerInfo: {},
 				userInfo: {},
@@ -200,6 +205,7 @@
 			this.confirmInfo = this.$store.state.register.confirmInfo
 			this.registerInfo = this.$store.state.register.registerInfo
 			this.userInfo = uni.getStorageSync('userInfo')
+			this.strategyQuery()
 		},
 		onShow(){
 		    //是否已经登录，已经登录就查询我的就诊人
@@ -207,17 +213,29 @@
 		    	// 查询就诊人列表
 		    	this.findMyUsers()
 		    }
+		    this.loadComplete = true
 		},
 		computed:{
 			...mapState(['paymentProvider']),
 			changeMobileNo: function () {
 				return this.changePatientInfo.mobileNo || this.userInfo.mobileNo
-			}
+			},
+			isNeedToPay: function () {
+				// tradeType: registTypeCode,//挂号类型；REGIST_PRE预约挂号 / REGIST_DAY当日挂号
+				let registPreNeedToPay = false
+				return !(this.registerInfo.tradeType == 'REGIST_PRE' && !this.registPreNeedToPay)
+			},
+
 		},
 		methods: {
 			setOutPatientId(obj){
 				console.log(obj)
 				this.outpatientId = obj.outpatientId
+			},
+			async strategyQuery(){
+				// 查询策略获取预约是否需要支付
+				const { isPayment } = await this.$api.ihosp_regist_strategy_query({orgCode: this.registerInfo.orgCode, tradeType: config.order.REGIST_PRE})
+				this.registPreNeedToPay = isPayment==='Y'
 			},
 			async findMyUsers(){
 				const { outpatientList } = await this.$api.outpatient_user_query({userId: this.userInfo.userId, sensitiveEncFlag:0})
@@ -310,12 +328,20 @@
 				param.terminalType = config.pay.TERMINAL_TYPE['ALI_MP'].code	//终端类型
 				param.terminalId = config.pay.TERMINAL_ID['A_01'].code			//终端编号
 				param.userId = this.userInfo.userId	//用户ID
+				param.openId = this.userInfo.openId	//用户openId
 				const res = await this.$api.ihosp_regist_create(param)
 				console.log('提交挂号单：',res)
 				if(res.code == '200'){
 					this.registCreateInfo = res
-					// 下单成功，调用支付
-					this.registOrderPay(res.registId)
+					if(this.isNeedToPay){
+						// 下单成功，需要支付，调用支付
+						this.registOrderPay(res.registId)
+					}else{
+						// 下单成功，无需支付,轮询挂号结果
+						let tradeType = param.tradeType
+						let tradeTypeVal = config.common.REGIST_TYPE[tradeType]
+						this.queryRegistResult(res.registId, { title:`${tradeTypeVal}结果确认`, content:`正在确认${tradeTypeVal}结果，请稍候...`})
+					}
 				}else {
 					this.$u.toast('提交订单失败')
 				}
@@ -350,7 +376,7 @@
 								_this.registClose(registId)
 								return
 							}
-							_this.queryRegistResult(registId)
+							_this.queryRegistResult(registId, { title:'支付结果确认', content:'正在确认支付结果，请稍候...'})
 						}, fail: function (err) {
 							_this.$u.toast('支付异常')
 							console.log('Pay fail(支付异常):' + JSON.stringify(err));
@@ -358,12 +384,9 @@
 					})
 				}
 			},
-			queryRegistResult(registId){
+			queryRegistResult(registId,loadingOption){
 				// uni.showLoading({title:'支付中...',mask:true})
-				this.$refs.jdModal._loading({
-					title:`支付结果确认`,
-					content:`正在确认支付结果，请稍候...`,
-				})
+				this.$refs.jdModal._loading(loadingOption)
 				let count = 0
 				const queryResultFn = async()=> {
 				    try {
@@ -371,8 +394,9 @@
 				        let list = page && page.records || []
 				        let registResult = list.length>0 && list[0] || {}
 						let status = registResult.productStatus && registResult.productStatus.code
-						// 支付中就继续轮询
-						if((status === 'PAY_PROCESSING' || status === 'REGIST_PROCESSING') && count < 5){
+						// 【支付中】、【预约中】、【挂号中】【挂号、预约处理中】就继续轮询
+						let registerStatus = config.common.REGISTER_STATUS
+						if((status === registerStatus['PAY_PROCESSING'].value || status === registerStatus['PAY_SUCCEED'].value  || status === registerStatus['REGIST_PROCESSING'].value) && count < 5){
 							count++
 				            setTimeout(()=>{
 				                queryResultFn()
@@ -380,9 +404,7 @@
 				        }else {
 				            // uni.hideLoading()
 							this.$refs.jdModal.cancel()
-							uni.navigateTo({
-								url: `/pages/register/registerResult/index?registId=${registId}`
-							})
+							this.toRegisterResult(registId)
 				        }
 				    }catch (e) {
 				        console.log(e);
@@ -391,6 +413,11 @@
 				    }
 				}
 				queryResultFn()
+			},
+			toRegisterResult(registId){
+				uni.navigateTo({
+					url: `/pages/register/registerResult/index?registId=${registId}`
+				})
 			},
 			registClose(registId){
 				this.$api.ihosp_regist_close({registId: registId, tradeType: 'REGIST_CLOSE', orgCode: this.registerInfo.orgCode})

@@ -34,8 +34,10 @@
 						</info-row>
 						<info-row label="就诊时间" :val="registResult.consultationTime||''"></info-row>
 						<info-row label="就诊号序" :val="registResult.numNo||''"></info-row>
-						<info-row label="挂号诊金" :val="'￥'+registResult.payableAmt||''">
-							<view v-if="registResult.payStatus" slot="val">({{registResult.payStatus.value}})</view>
+						<info-row label="挂号诊金" :val="'￥'+(registResult.payableAmt||'')">
+							<template v-show="paySuccess">
+                                <view slot="val" class="val-status grey" >(<text class="vs-text" :class="[paySuccess.cls]">{{paySuccess.text}}</text>)</view>
+							</template>
 						</info-row>
 						<info-row label="下单时间" :val="registResult.createTime||''"></info-row>
 						<info-row :label="registType+'单号'" :val="registResult.registId||''" v-if="registStatus !== 'PAY_INIT'"></info-row>
@@ -46,13 +48,13 @@
 			<view class="pay-detalis">
 				<view class="title">支付信息</view>
 				<info-row label="支付类型" :val="registResult.insuOption?'医保支付':'自费支付'"></info-row>
-				<info-row label="医保支付" v-if="registResult.insuOption != null" :val="'￥'+registResult.insuAmt">
-					<template v-if="insuStatus">
+				<info-row label="医保支付" v-if="registResult.insuOption != null" :val="'￥'+(registResult.insuAmt||'')">
+					<template v-show="insuStatus">
 						<view slot="val" class="val-status grey" >(<text class="vs-text" :class="[insuStatus.cls]">{{insuStatus.text}}</text>{{insuStatus.label || ''}})</view>
 					</template>
 				</info-row>
-				<info-row label="自费支付" :val="'￥'+registResult.selfAmt">
-					<template v-if="selfStatus">
+				<info-row label="自费支付" :val="'￥'+(registResult.selfAmt||'')">
+					<template v-show="selfStatus">
 						<view slot="val" class="val-status grey" >(<text class="vs-text" :class="[selfStatus.cls]">{{selfStatus.text}}</text>)</view>
 					</template>
 				</info-row>
@@ -63,29 +65,29 @@
 		</view>
 
 		<!-- 操作  不等于支付中、预约中-->
-		<view class="bottom-options flex-r-center" v-if="registStatus != 'PAY_PROCESSING' && registStatus != 'PAY_SUCCEED'">
-			<template v-if="(registStatus == 'PAY_INIT' || registStatus == 'REGIST_SUCCEED') && !(registType == '预约' && isSameDay())">
+		<view class="bottom-options flex-r-center" v-if="showOptions">
+			<template v-if="showCancelRegist">
 				<jd-button size="lg" style="flex:1" :btn-style="{flex:1,height:'96rpx',borderRadius: 0,color:'#333333'}" @submit="cancelRegist">取消{{ registType }}</jd-button>
 			</template>
 
-			<template v-if="registStatus == 'PAY_UNKNOWN'">
+			<template v-if="showRetryQuery">
 				<jd-button size="lg" style="flex:1" :btn-style="{flex:1,height:'98rpx',borderRadius: 0}" type="primary" @submit="retryQuery">重试查询支付结果</jd-button>
 			</template>
-			<template v-if="( registStatus == 'REGIST_FAILED' || registStatus == 'PAY_FAILED' || 'CANCEL_SUCCEED' == registStatus || 'CANCEL_SUCCEED' == registStatus) && !refundSuccess">
+			<template v-if="showRetryRefund">
 				<jd-button size="lg" style="flex:1" :btn-style="{flex:1,height:'96rpx',borderRadius: 0,color:'#333333'}" @submit="retry">重试退款</jd-button>
 			</template>
-			<template v-if="registStatus == 'REGIST_UNKNOWN'">
+			<template v-if="showRetryConfirm">
 				<jd-button size="lg" style="flex:1" :btn-style="{flex:1,height:'98rpx',borderRadius: 0}" type="primary"  @submit="retryConfirm">重试确认{{ registType }}结果</jd-button>
 			</template>
 
-			<template v-if="(( registStatus == 'REGIST_FAILED' || registStatus == 'PAY_FAILED' || 'CANCEL_SUCCEED' == registStatus || 'CANCEL_SUCCEED' == registStatus) && refundSuccess) || 'COMPLETED' == registStatus ">
-				<jd-button size="lg" style="flex:1" :btn-style="{flex:1,height:'98rpx',borderRadius: 0}" type="primary" @submit="toRegist">再次{{ registType }}</jd-button>
+			<template v-if="showAgainRegist">
+				<jd-button size="lg" style="flex:1" :btn-style="{flex:1,height:'98rpx',borderRadius: 0}" type="primary" @submit="toRegist()">再次{{ registType }}</jd-button>
 			</template>
 			<!-- 预约挂号，就诊当天 -->
-			<template v-if="registType == '预约' && isSameDay() && registStatus == 'REGIST_SUCCEED'">
+			<!--<template v-if="registType == '预约' && isSameDay() && registStatus == 'REGIST_SUCCEED'">
 				<jd-button size="lg" style="width:39%;" :btn-style="returnHomeBtnStyle" @submit="cancelRegist">取消预约</jd-button>
 				<jd-button size="lg" style="flex:1" :btn-style="{flex:1,height:'98rpx',borderRadius: 0}" type="primary" @submit="">在线取号</jd-button>
-			</template>
+			</template>-->
 		</view>
 
 		<jd-modal ref="jdModal"></jd-modal>
@@ -286,12 +288,18 @@
 				}
 			},
 			// 再次预约
-			toRegist(){
-				//跳转到医生主页挂号
-				let {orgCode,doctorCode,deptId,deptCode,deptName} = this.registResult
-				uni.navigateTo({
-					url: `/pages/register/doctorPage/index?orgCode=${orgCode}&doctorCode=${doctorCode}&deptCode=${item.deptCode}&isPrompt=true`
-				})
+			async toRegist(){
+				let item = this.registResult;
+				let res = await this.$api.ihosp_doctor_sup_num({orgCode:item.orgCode,deptCode:item.deptCode,deptLast:config.common.DEPT_LAST.yes, doctorCode: item.doctorCode});
+				if(Number(res.code)===200&&Array.isArray(res.doctorSupDateList)&&res.doctorSupDateList.length>0){
+					uni.navigateTo({
+						url: `/pages/register/doctorPage/index?orgCode=${item.orgCode}&doctorCode=${item.doctorCode}&deptCode=${item.deptCode}&isPrompt=true`
+					})
+				}else{
+					uni.navigateTo({
+						url: `/pages/register/doctorPage/index?orgCode=${item.orgCode}&doctorCode=${item.doctorCode}&deptCode=${item.deptCode}&isPrompt=true`
+					})
+				}
 			},
 			// 取消预约
 			async cancelRegist(){
@@ -365,7 +373,7 @@
 				margin-top: 20rpx;
 				background-color: #F5F8FF;
 				border-radius: 10rpx;
-				padding: 30rpx 20rpx;
+				padding: 20rpx;
 			}
 			.status-text{
 				line-height: 34rpx;
@@ -425,7 +433,7 @@
 		bottom: 0;
 		display: flex;
 		height: 98rpx;
-		box-shadow: inset 0rpx 1rpx 0rpx $line;
+		box-shadow: inset 0rpx 1px 0rpx $line;
 	}
 
 </style>

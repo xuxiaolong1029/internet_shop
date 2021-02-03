@@ -46,7 +46,7 @@
 				APM,
 				NUM_TYPE,
 				REGIST_TYPE,
-				registTypeCode: 'REGIST_PRE'
+				registTypeCode: ''
             }
         },
         methods: {
@@ -56,12 +56,15 @@
 			appointmentText(surplusNum){
 				let text = '约满'
 				if(this.isAppointment(surplusNum)){
-					text = REGIST_TYPE['REGIST_PRE']
-					this.registTypeCode = 'REGIST_PRE'
-					// 当日显示挂号
+
 					if(this.isNowDate()){
-						text = REGIST_TYPE['REGIST_DAY']
-						this.registTypeCode = 'REGIST_DAY'
+						// 当日显示挂号
+						text = REGIST_TYPE[config.order.REGIST_DAY]
+						this.registTypeCode = config.order.REGIST_DAY
+					}else{
+						// 预约挂号
+						text = REGIST_TYPE[config.order.REGIST_PRE]
+						this.registTypeCode = config.order.REGIST_PRE
 					}
 				}
 				return text

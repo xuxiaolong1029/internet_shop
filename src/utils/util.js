@@ -68,7 +68,7 @@ export const debounce = (fn, delay, scope) => {
 }
 
 /**
- * 根据传入字段分组 
+ * 根据传入字段分组
  * */
 export const groupBy = (objectArray, property) => {
 	return objectArray.reduce(function (acc, obj) {
@@ -124,4 +124,20 @@ export const timestampToTime = (timestamp,length,link='/')=>{
     let m = (date.getMinutes()<10?'0'+date.getMinutes():date.getMinutes())+':';
     let s = date.getSeconds()<10?'0'+date.getSeconds():date.getSeconds();
     return length?(Y+M+D+' '+h+m+s).substr(0,length):Y+M+D+' '+h+m+s
+}
+
+/**
+ * 过滤字符串两边空格
+ * @param str
+ * @returns {string}
+ */
+export const trim = (str='')=>{
+    try {
+        str = `${str}`
+        let type = typeof str
+        let result = str.replace(/(^\s*)|(\s*$)/g, "")
+        return type === 'string' ? result : type === 'number' ? Number(str) : str
+    }catch (e) {
+       return str
+    }
 }

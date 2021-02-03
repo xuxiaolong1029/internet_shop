@@ -2,8 +2,8 @@
     <view class="page-pay-record">
         <view class="page-pay-record-dropdown" :class="{'is-dropdown':showDropdown}">
             <u-dropdown @open="showDropdown = true" @close="showDropdown=false" title-size="32" height="88">
-                <u-dropdown-item @change="getPayRecord" v-model="patientId" title="选择就诊人" :options="patientList"></u-dropdown-item>
-                <u-dropdown-item @change="getPayRecord" v-model="status" title="选择状态" :options="statusList"></u-dropdown-item>
+                <u-dropdown-item @change="getPayRecord" height="500" v-model="patientId" title="选择就诊人" :options="patientList"></u-dropdown-item>
+                <u-dropdown-item @change="getPayRecord" height="500" v-model="status" title="选择状态" :options="statusList"></u-dropdown-item>
             </u-dropdown>
         </view>
         <mescroll-body ref="mescrollRef" @init="mescrollInit" top="80" bottom="140" :down="downOption" :up="upOption" @down="downCallback" @up="upCallback">
@@ -14,7 +14,7 @@
                             <view slot="middle">
                                 <info-row label="患者姓名" :val="item.patientName"></info-row>
                                 <info-row label="开单医生" :val="item.doctorName">
-                                    <text slot="val">({{orgName}} {{item.deptName}})</text>
+                                    <text slot="val">(<!--{{orgName}}--> {{item.deptName}})</text>
                                 </info-row>
                                 <info-row label="开单时间" :val="item.orderTime||''"></info-row>
                             </view>
@@ -56,7 +56,7 @@
                 status:'',
                 patientList:[],
                 payList: [],
-                statusList:Object.values(config.common.PAY_STATUS),
+                statusList:Object.values(config.common.PAY_STATUS).concat([{label: "全部类型", value: ""}]),
                 downOption:{
                     use:true,
                 },
@@ -75,7 +75,8 @@
                     }
                 },
                 page:{},
-                showDropdown:false
+                showDropdown:false,
+                statusTimer:null
             };
         },
         computed: {
@@ -84,7 +85,7 @@
             }),
         },
         onLoad(par){
-            this.patientId = par.patientId
+            this.patientId = par.patientId;
             uni.getStorage({//获取本地缓存
                 key:"hospital_info",
                 success:(res)=>{
@@ -94,18 +95,21 @@
             this.userInfo = uni.getStorageSync('userInfo');
             this.getOutpatientInfo()
         },
+        onUnload(){
+            clearTimeout(this.statusTimer)
+        },
+        onHide(){
+            clearTimeout(this.statusTimer)
+        },
         methods:{
             async getOutpatientInfo(){
                 const { outpatientList=[] } = await this.$api.outpatient_user_query({userId:this.userInfo.userId})
                 this.patientList=[]
                 if(outpatientList.length>0){
-                    if(!this.patientId){
-                        this.patientId = outpatientList[0].outpatientId
-                    }
-                    this.getPayRecord()
                     for (let item of outpatientList){
                         this.patientList.push({label:item.name,value:item.outpatientId})
                     }
+                    this.patientList.push({label:"全部就诊人", value:""});
                 }
             },
             handleOrder(){
@@ -120,8 +124,7 @@
                 this.page = page;
                 this.getPayRecord()
             },
-            async getPayRecord(){
-                if(!this.patientId) return  false
+            async getPayRecord(reload){
                 await this.$api.fee_query_list({
                     orgCode:this.orgCode,
                     tradeType:config.order.QUERY_LIST_FEE,
@@ -136,14 +139,19 @@
                     if(this.page.num === 1){
                         this.payList = []
                     }
-                    this.payList=this.payList.concat(list)
-                    /*if(this.payList.filter(item=>['FEE_PROCESSING','PAY_PROCESSING'].includes(item.status))){
-                        this.timer = setInterval(() => {
-                            setTimeout(this.getPayRecord(), 0)
-                        },5000)
+                    if(reload==='reload'){
+                        this.payList = list
                     }else{
-                        clearInterval(this.timer)
-                    }*/
+                        this.payList = this.payList.concat(list)
+                    }
+                    if(this.payList.find(item=>['FEE_PROCESSING','PAY_PROCESSING'].includes(item.status))){
+                        this.statusTimer = setTimeout(()=>{
+                            this.page={num:1, size:10};
+                            this.getPayRecord('reload')
+                        },3000)
+                    }else{
+                        clearTimeout(this.statusTimer)
+                    }
                 }).catch(()=>{
                     //联网失败, 结束加载
                     this.mescroll.endErr();

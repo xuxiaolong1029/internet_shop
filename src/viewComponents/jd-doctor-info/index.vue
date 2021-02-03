@@ -102,7 +102,7 @@
 			box-sizing: border-box;
 			border-radius: 50%;
 			@include bg-image('img/doctor-def');
-			border: 1rpx solid $line;
+			border: 1px solid $line;
 			image{
 				width: 100%;
 				height: 100%;
@@ -134,7 +134,7 @@
 					&.border-left{
 						margin-left: 20rpx;
 						padding-left: 20rpx;
-						border-left: 1rpx solid $line;
+						border-left: 1px solid $line;
 					}
 				}
 			}
@@ -145,7 +145,7 @@
 			flex-grow: 0;
 			flex-shrink: 0;
 			/deep/ .u-btn{
-				border: 1rpx solid $primary;
+				border: 1px solid $primary;
 				background-color: #FFFFFF !important;
 				width: 100%;
 				font-size: $font-s-base !important;

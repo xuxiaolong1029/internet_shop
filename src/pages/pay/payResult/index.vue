@@ -21,14 +21,14 @@
 							<view class="pic-info">
 								<template v-if="getStatus(item).success">
 									<view class="pic-info-tips" v-if="item.visitGuide">{{item.visitGuide}}</view>
-									<jd-info-row label="执行科室" v-if="item.deptName" :val="item.deptName" :customStyle="{'margin-top':'18rpx'}"></jd-info-row>
-									<jd-info-row label="科室位置" v-if="item.deptAddress" :val="item.deptAddress" :customStyle="{'margin-top':'18rpx'}"></jd-info-row>
+									<jd-info-row label="执行科室" v-if="item.deptName" :val="item.deptName" :customStyle="{'line-height':'48rpx'}"></jd-info-row>
+									<jd-info-row label="科室位置" v-if="item.deptAddress" :val="item.deptAddress" :customStyle="{'line-height':'48rpx'}"></jd-info-row>
 								</template>
 								<template v-else>
-									<jd-info-row label="交费结果" v-if="item.feeStatus && item.feeStatus.value" :val="item.feeStatus.value" :customStyle="{'margin-top':'18rpx'}" :valStyle="{'color':feeStatus(item).color}"></jd-info-row>
-									<jd-info-row label="失败原因" v-if="item.failReason" :val="item.failReason" :customStyle="{'margin-top':'18rpx'}" ></jd-info-row>
-									<jd-info-row :label="item.insuStatus?'自费退款':'退款状态'" v-if="item.refundStatus" :val="item.refundStatus" :customStyle="{'margin-top':'18rpx'}" :valStyle="{'color': refundStatus(item).color}"></jd-info-row>
-									<view class="pic-info-tips" v-if="item.refundNotes" style="margin-top: 18rpx;">{{item.refundNotes}}</view>
+									<jd-info-row label="交费结果" v-if="item.feeStatus && item.feeStatus.value" :val="item.feeStatus.value" :customStyle="{'line-height':'48rpx'}" :valStyle="{'color':feeStatus(item).color}"></jd-info-row>
+									<jd-info-row label="失败原因" v-if="item.failReason" :val="item.failReason" :customStyle="{'line-height':'48rpx'}" ></jd-info-row>
+									<jd-info-row :label="item.insuStatus?'自费退款':'退款状态'" v-if="item.refundStatus" :val="item.refundStatus" :customStyle="{'line-height':'48rpx'}" :valStyle="{'color': refundStatus(item).color}"></jd-info-row>
+									<view class="pic-info-tips" v-if="item.refundNotes" style="line-height:48rpx;">{{item.refundNotes}}</view>
 								</template>
 							</view>
 							<view class="pic-options">
@@ -356,7 +356,7 @@
 			border-radius: 10rpx;
 			display: flex;
 			flex-direction: column;
-			padding: 30rpx 20rpx;
+			padding: 20rpx;
 			.pic-info-tips{
 				font: $font-s-base;
 				color: $text-color;

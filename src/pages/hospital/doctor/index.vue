@@ -6,7 +6,7 @@
         <u-card :show-head="false" :head-border-bottom="false" border-radius="20" :border="false" :body-style="bodyStyle">
             <view slot="body">
                 <view class="search-wrapper">
-                    <u-search shape="square" search-icon-color="#BBBBBB" placeholder-color="#BBBBBB" :show-action="false" placeholder="搜索医生姓名" :inputStyle="{marginLeft:-2}" v-model="searchKey" @search="getDoctorList"/>
+                    <u-search shape="square" search-icon-color="#BBBBBB" placeholder-color="#BBBBBB" :show-action="false" placeholder="搜索医生姓名" :inputStyle="{marginLeft:-2}" v-model="searchKey" @search="getDoctorList" @clear="clear" />
                 </view>
                 <view class="dropdown-w">
                     <u-dropdown @open="onDropdownOpen" @close="onDropdownClose" border-bottom title-size="32" height="88">
@@ -26,6 +26,7 @@
 <script>
     import doctorItem from '../components/doctor-item'
     import mixinsBgUrl from '../mixins/bgUrl'
+    import {debounce} from '@/utils'
     import { mapState } from 'vuex'
     const deptOptionsInit = {}
     export default {
@@ -70,6 +71,17 @@
             },
 
         },
+        watch:{
+            searchKey:{
+                handler:debounce(function (val) {
+                    if(val){
+                        this.getDoctorList()
+                    }else {
+                        this.clear()
+                    }
+                },800)
+            }
+        },
         // onPageScroll(e){
         //     this.pageY = e.scrollTop
         // },
@@ -113,7 +125,9 @@
             onDropdownClose(){
                 this.onDropdownShow = false
             },
-
+            clear(){
+                this.docList=[]
+            },
             moveHandle(e){
                 return false
             }

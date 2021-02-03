@@ -47,8 +47,20 @@ export const REGISTER_STATUS={
     "RETURN_SUCCEED":{value:"RETURN_SUCCEED",label:"已退号"},
     "COMPLETED":{value:"COMPLETED",label:"已完成"}
 };
-//支付状态
 
+// 挂号支付状态
+export const REGIST_PAY_STATUS={
+    'PAY_INIT':{label:'待支付',value:'PAY_INIT'},
+    'PAY_PROCESSING':{label:'支付中',value:'PAY_PROCESSING'},
+    'PAY_SUCCEED':{label:'已支付',value:'PAY_SUCCEED'},
+    'PAY_FAILED':{label:'支付失败',value:'PAY_FAILED'},
+    'PAY_UNKNOWN':{label:'支付异常',value:'PAY_UNKNOWN'},
+    'REFUND_SUCCEED':{label:'退款成功',value:'REFUND_SUCCEED'},
+    'REFUND_FAILED':{label:'退款失败',value:'REFUND_FAILED'},
+    'REFUND_UNKNOWN':{label:'退款异常',value:'REFUND_UNKNOWN'}
+};
+
+// 缴费支付状态
 export const PAY_STATUS={
     'PAY_INIT':{label:'待支付',value:'PAY_INIT'},
     'PAY_PROCESSING':{label:'支付中',value:'PAY_PROCESSING'},
@@ -66,6 +78,14 @@ export const PAY_STATUS={
 export const DEPT_LAST = { yes:'Y', no:'N' }
 export const APM = { '1':'上午', '2':'下午' }
 export const NUM_TYPE = { '1':'特诊','2':'副高' }
+// 科室级别
+export const DEPT_LEVEL={
+    '1':{label:'国', level:'国家级'},
+    '2':{label:'省', level:'省级'},
+    '3':{label:'市', level:'市级'},
+    '4':{label:'区', level:'区县级'},
+    '5':{label:'院', level:'院级'}
+}
 export const REGIST_TYPE = {
     'REGIST_PRE':'预约',
     'REGIST_DAY':'挂号' ,

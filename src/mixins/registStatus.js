@@ -6,7 +6,8 @@ export default {
 			registId: '',	//挂号单订单号
 			registResult: {},
 			userInfo: {},
-			REGISTER_STATUS: config.common.REGISTER_STATUS
+			REGISTER_STATUS: config.common.REGISTER_STATUS,
+			REGIST_PAY_STATUS: config.common.REGIST_PAY_STATUS
 		};
 	},
 	computed:{
@@ -50,7 +51,13 @@ export default {
 		refundSuccess(){
 			let selfStatus = this.registResult.selfStatus && this.registResult.selfStatus.code
 			let insuStatus = this.registResult.insuStatus && this.registResult.insuStatus.code
-			return 'REFUND_SUCCEED' == selfStatus && ('REFUND_SUCCEED' == insuStatus || 'PAY_FAILED' == insuStatus)
+			if(insuStatus!=null){
+				// 自费+医保是否退款成功
+				return this.REGIST_PAY_STATUS['REFUND_SUCCEED'].value == selfStatus && (this.REGIST_PAY_STATUS['REFUND_SUCCEED'].value == insuStatus || this.REGIST_PAY_STATUS['PAY_FAILED'].value == insuStatus)
+			}else{
+				// 自费是否退款成功
+				return this.REGIST_PAY_STATUS['REFUND_SUCCEED'].value == selfStatus
+			}
 		},
 		registerStatus(){
 			let s = this.registResult.productStatus && this.registResult.productStatus.code
@@ -68,113 +75,86 @@ export default {
 		},
 		selfStatus(){
 			//自费支付状态显示转换
-			let status = this.registResult.selfStatus && this.registResult.selfStatus.code
+			let s = this.registResult.selfStatus && this.registResult.selfStatus.code
 			let val = this.registResult.selfStatus && this.registResult.selfStatus.value
-			let stat = null
-			switch (status){
-				case 'PAY_INIT':
-					stat = { text: '未支付', cls: '', label: '' }
-					break;
-				case 'PAY_PROCESSING':
-					stat = { text: '支付中', cls: 'dark', label: '' }
-					break;
-				case 'PAY_SUCCEED':
-					stat = { text: '已支付', cls: '', label: '' }
-					break;
-				case 'PAY_FAILED':
-					stat = { text: '支付失败', cls: 'danger', label: '' }
-					break;
-				case 'PAY_UNKNOWN':
-					stat = { text: '支付异常', cls: 'warning', label: '' }
-					break;
-				case 'REFUND_SUCCEED':
-					stat = { text: '退款成功', cls: 'dark', label: '' }
-					break;
-				case 'REFUND_FAILED':
-					stat = { text: '退款失败', cls: 'danger', label: '' }
-					break;
-				case 'REFUND_UNKNOWN':
-					stat = { text: '退款异常', cls: 'warning', label: '' }
-					break;
-				default:
-					stat = { text: val, cls: '', label: '' }
-					break;
+			const statusArr = {
+				[this.REGIST_PAY_STATUS['PAY_INIT'].value]: { text: val, cls: 'dark', label: '' },	// 未支付
+				[this.REGIST_PAY_STATUS['PAY_PROCESSING'].value]: { text: val, cls: 'dark', label: '' },// 支付中
+				[this.REGIST_PAY_STATUS['PAY_SUCCEED'].value]: { text: val, cls: 'dark', label: '' },// 已支付
+				[this.REGIST_PAY_STATUS['PAY_FAILED'].value]: { text: val, cls: 'danger', label: '' },// 支付失败
+				[this.REGIST_PAY_STATUS['PAY_UNKNOWN'].value]: { text: val, cls: 'warning', label: '' },// 支付异常
+				[this.REGIST_PAY_STATUS['REFUND_SUCCEED'].value]: { text: val, cls: 'dark', label: '' },// 退款成功
+				[this.REGIST_PAY_STATUS['REFUND_FAILED'].value]: { text: val, cls: 'danger', label: '' },// 退款失败
+				[this.REGIST_PAY_STATUS['REFUND_UNKNOWN'].value]: { text: val, cls: 'warning', label: '' }// 退款异常
 			}
-			return stat
+			return statusArr[s] || { text: val, cls: '', label: '' }
 		},
 		insuStatus(){
 			//医保支付状态显示转换
-			let status = this.registResult.insuStatus && this.registResult.insuStatus.code
+			let s = this.registResult.insuStatus && this.registResult.insuStatus.code
 			let val = this.registResult.insuStatus && this.registResult.insuStatus.value
-			let stat = null
-			switch (status){
-				case 'PAY_INIT':
-					stat = { text: '未支付', cls: '', label: '' }
-					break;
-				case 'PAY_PROCESSING':
-					stat = { text: '支付中', cls: 'dark', label: '' }
-					break;
-				case 'PAY_SUCCEED':
-					stat = { text: '已支付', cls: 'dark', label: '' }
-					break;
-				case 'PAY_FAILED':
-					stat = { text: '医保结算失败', cls: 'danger', label: '未扣款' }
-					break;
-				case 'PAY_UNKNOWN':
-					stat = { text: '支付异常', cls: 'warning', label: '' }
-					break;
-
-				case 'REFUND_SUCCEED':
-					stat = { text: '退款成功', cls: 'dark', label: '' }
-					break;
-				case 'REFUND_FAILED':
-					stat = { text: '退款失败', cls: 'danger', label: '' }
-					break;
-				case 'REFUND_UNKNOWN':
-					stat = { text: '退款异常', cls: 'warning', label: '' }
-					break;
-				default:
-					stat = { text: val, cls: '', label: '' }
-					break;
+			const statusArr = {
+				[this.REGIST_PAY_STATUS['PAY_INIT'].value]: { text: val, cls: 'dark', label: '' },	// 未支付
+				[this.REGIST_PAY_STATUS['PAY_PROCESSING'].value]: { text: val, cls: 'dark', label: '' },// 支付中
+				[this.REGIST_PAY_STATUS['PAY_SUCCEED'].value]: { text: val, cls: 'dark', label: '' },// 已支付
+				[this.REGIST_PAY_STATUS['PAY_FAILED'].value]: { text: '医保结算失败', cls: 'danger', label: '未扣款' },// 支付失败
+				[this.REGIST_PAY_STATUS['PAY_UNKNOWN'].value]: { text: val, cls: 'warning', label: '' },// 支付异常
+				[this.REGIST_PAY_STATUS['REFUND_SUCCEED'].value]: { text: val, cls: 'dark', label: '' },// 退款成功
+				[this.REGIST_PAY_STATUS['REFUND_FAILED'].value]: { text: val, cls: 'danger', label: '' },// 退款失败
+				[this.REGIST_PAY_STATUS['REFUND_UNKNOWN'].value]: { text: val, cls: 'warning', label: '' }// 退款异常
 			}
-			return stat
+			return statusArr[s] || { text: val, cls: '', label: '' }
 		},
 		paySuccess(){
 			//挂号诊金支付状态显示转换
-			let status = this.registResult.payStatus && this.registResult.payStatus.code
+			let s = this.registResult.payStatus && this.registResult.payStatus.code
 			let val = this.registResult.payStatus && this.registResult.payStatus.value
-			let stat = null
-			switch (status){
-				case 'PAY_INIT':
-					stat = { text: '未支付', cls: 'dark', label: '' }
-					break;
-				case 'PAY_PROCESSING':
-					stat = { text: '支付中', cls: 'dark', label: '' }
-					break;
-				case 'PAY_SUCCEED':
-					stat = { text: '已支付', cls: 'dark', label: '' }
-					break;
-				case 'PAY_FAILED':
-					stat = { text: '支付失败', cls: 'dark', label: '' }
-					break;
-				case 'PAY_UNKNOWN':
-					stat = { text: '支付异常', cls: 'dark', label: '' }
-					break;
-				case 'REFUND_SUCCEED':
-					stat = { text: '退款成功', cls: 'dark', label: '' }
-					break;
-				case 'REFUND_FAILED':
-					stat = { text: '退款失败', cls: 'danger', label: '' }
-					break;
-				case 'REFUND_UNKNOWN':
-					stat = { text: '退款异常', cls: 'warning', label: '' }
-					break;
-				default:
-					stat = { text: val, cls: '', label: '' }
-					break;
+			const statusArr = {
+				[this.REGIST_PAY_STATUS['PAY_INIT'].value]: { text: val, cls: 'dark', label: '' },	// 未支付
+				[this.REGIST_PAY_STATUS['PAY_PROCESSING'].value]: { text: val, cls: 'dark', label: '' },// 支付中
+				[this.REGIST_PAY_STATUS['PAY_SUCCEED'].value]: { text: val, cls: 'dark', label: '' },// 已支付
+				[this.REGIST_PAY_STATUS['PAY_FAILED'].value]: { text: val, cls: 'danger', label: '' },// 支付失败
+				[this.REGIST_PAY_STATUS['PAY_UNKNOWN'].value]: { text: val, cls: 'warning', label: '' },// 支付异常
+				[this.REGIST_PAY_STATUS['REFUND_SUCCEED'].value]: { text: val, cls: 'dark', label: '' },// 退款成功
+				[this.REGIST_PAY_STATUS['REFUND_FAILED'].value]: { text: val, cls: 'danger', label: '' },// 退款失败
+				[this.REGIST_PAY_STATUS['REFUND_UNKNOWN'].value]: { text: val, cls: 'warning', label: '' }// 退款异常
 			}
-			return stat
+			return statusArr[s] || { text: val, cls: '', label: '' }
 		},
+		showRetryQuery(){
+			// 支付异常，重试查询支付结果
+			return this.registStatus == this.REGISTER_STATUS['PAY_UNKNOWN'].value
+		},
+		showRetryRefund(){
+			// 重试退款: 挂号、预约失败或取消成功+退款异常
+			return ( this.registStatus == this.REGISTER_STATUS['REGIST_FAILED'].value || this.registStatus == this.REGISTER_STATUS['PAY_FAILED'].value || this.registStatus == this.REGISTER_STATUS['CANCEL_SUCCEED'].value ) && !this.refundSuccess
+		},
+		showRetryConfirm(){
+			// 重试确认挂号、预约结果: 挂号、预约异常
+			return this.registStatus == this.REGISTER_STATUS['REGIST_UNKNOWN'].value
+		},
+		showAgainRegist(){
+			// 再次挂号、预约: （挂号、预约失败或取消成功+退款成功）或者 已完成
+			return ((this.registStatus == this.REGISTER_STATUS['REGIST_FAILED'].value || this.registStatus == this.REGISTER_STATUS['PAY_FAILED'].value || this.registStatus == this.REGISTER_STATUS['CANCEL_SUCCEED'].value ) && this.refundSuccess) || this.REGISTER_STATUS['COMPLETED'].value == this.registStatus
+		},
+		showToHome(){
+			// 返回首页: （挂号、预约失败或取消成功+退款成功）或者 挂号、预约成功
+			return ((this.registStatus == this.REGISTER_STATUS['REGIST_FAILED'].value || this.registStatus == this.REGISTER_STATUS['PAY_FAILED'].value) && this.refundSuccess) || this.registStatus == this.REGISTER_STATUS['REGIST_SUCCEED'].value
+		},
+		registSuccess(){
+			// 挂号、预约成功
+			return this.registStatus == this.REGISTER_STATUS['REGIST_SUCCEED'].value
+		},
+		showCancelRegist(){
+			// 取消挂号、预约：待支付 或 挂号、预约成功
+			return (this.registStatus == this.REGISTER_STATUS['PAY_INIT'].value || this.registStatus == this.REGISTER_STATUS['REGIST_SUCCEED'].value)
+		},
+		showOptions(){
+			// 是否显示操作按钮：不等于支付中 && 不等于挂号、预约中
+			return this.registStatus != this.REGISTER_STATUS['PAY_PROCESSING'].value && this.registStatus != this.REGISTER_STATUS['PAY_SUCCEED'].value
+		},
+
+
 	},
     methods:{
 

@@ -29,6 +29,31 @@
   autoprefixer: on;
   word-break: break-all;
 }
+/*1px边框*/
+@mixin border-1px($color:$u-border-color) {
+  position: relative;
+  &:after {
+    position: absolute;
+    /* #ifndef APP-NVUE */
+    box-sizing: border-box;
+    content: ' ';
+    pointer-events: none;
+    border-bottom: 1px solid $color;
+    /* #endif */
+    right: 0;
+    left: 0;
+    top: 0;
+    transform: scaleY(0.5);
+  }
+}
+
+/*取消1px边框*/
+@mixin border-none() {
+  &:after {
+    display: none;
+  }
+}
+
 @mixin zoom-animation($direction:'top',$scaleStart:scaleY(0),$scaleEnd:scaleY(1),$origin:center top){
    .zoom-in-#{$direction}-enter {
      opacity: 0;

@@ -2,7 +2,7 @@
     <view class="card-wrapper">
         <view class="card-i-w" v-for="(item,index) in cardInfoList" :key="item.cardNo">
             <jd-card-item type="patients" :item="item" :height="240"/>
-            <view class="flex-r-sb-center btn-wrapper" style="width: 60px">
+            <view class="flex-r-sb-center btn-wrapper" style="width: 75px">
                 <jd-icon-btn @onClick="deleteAction(index)" name="trash" type="info"/>
                 <jd-icon-btn @onClick="editAction(index)" name="edit-pen" type="info"/>
             </view>

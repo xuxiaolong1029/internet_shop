@@ -3,7 +3,7 @@
 	<view class="select-doctor">
 		<u-line color="#D9D9D9"></u-line>
 		<!-- 科室信息 start -->
-		<info-card :title="deptInfo.deptName" :tips="deptInfo.numOutInfo" :tag="deptInfo.tab" :telephone="deptInfo.telephone" class="info-card" @toCall="toCall" @clickTips="showTips">
+		<info-card :title="deptInfo.deptName" :tips="deptInfo.numOutInfo" :deptLevel="deptInfo.deptLevel" :telephone="deptInfo.landline" class="info-card" @toCall="toCall" @clickTips="showTips">
 			<view class="link-container" v-if="deptLast==DEPT_LAST.yes">
 				<view class="hospital-bi" @click="toDeptInfo">
 					<view class="bi-icon"></view>
@@ -23,7 +23,7 @@
 				<date-filter :dateList="dateList" :activeKey="activeDate" class="date-filter" @changeDate="changeDate"></date-filter>
 			</view>
 		</u-sticky>
-		<template v-if="activeDate=='all'">
+		<view v-show="activeDate==='all'">
 			<!-- 普通号 start -->
 			<view class="common-register" v-if="ordinaryDoctorList && ordinaryDoctorList.length>0">
 				<view class="cr-title">普通号</view>
@@ -42,8 +42,8 @@
 			<view class="no-data-content" v-show="(ordinaryDoctorList==null || ordinaryDoctorList.length==0) && (expertDoctorList==null || expertDoctorList.length==0)">
 				<jd-result :text="'此科室暂无可预约的医生'"></jd-result>
 			</view>
-		</template>
-		<template v-else>
+		</view>
+		<view v-show="activeDate!=='all'">
 			<view class="common-register" v-if="ordinaryDayList && ordinaryDayList.length>0">
 				<view class="cr-title">普通号</view>
 				<template v-for="(item,index) in ordinaryDayList">
@@ -64,7 +64,7 @@
 					<jd-register-doctor :doctorObj="item"
 						:showOption="false"
 						:showPrice="false"
-						:showNumberDate="false" 
+						:showNumberDate="false"
 						:customStyle="{'padding-bottom':'0rpx'}"
 						@changeContent="showDoctorInfoFn">
 						<register-categorys v-for="(item1,index1) in item.apmList" :key="index1" :categorys="item1" :date="activeDate" :params="item" :showSurplusNum="true" @clickAppointment="appointment2" @changeContent="appointment2"></register-categorys>
@@ -75,7 +75,7 @@
 			<view class="no-data-content" v-show="(ordinaryDayList==null || ordinaryDayList.length==0) && (expertDayList==null || expertDayList.length==0)">
 				<jd-result :text="'此科室暂无可预约的医生'"></jd-result>
 			</view>
-		</template>
+		</view>
 
 		<jd-select-regist-times ref="jdSelectRegistTimes"
 			v-model="showSelectTime"
@@ -412,7 +412,7 @@
 				this.sticky = false
 			},
 			changeDate(item) {
-				console.log('changeDate:',typeof item == "object");
+				console.log('changeDate:',item);
 				if(item && typeof item == "object"){
 					//查询指定日期号源
 					this.activeDate = item.schDate

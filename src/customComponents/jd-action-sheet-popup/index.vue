@@ -1,5 +1,5 @@
 <template>
-        <u-popup :value="value" @close="close" @onPopupShow="onPopupShow" :mode="mode" :borderRadius="borderRadius">
+        <u-popup :value="value" @close="close" z-index="10" @onPopupShow="onPopupShow" :mode="mode" :borderRadius="borderRadius">
             <view class="pay-popup-wrapper">
                 <slot name="top"></slot>
                 <slot name="middle"></slot>

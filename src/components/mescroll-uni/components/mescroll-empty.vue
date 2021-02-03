@@ -63,8 +63,8 @@ export default {
 }
 
 .mescroll-empty .empty-icon {
-	width: 280rpx;
-	height: 280rpx;
+	width: 200rpx;
+	height: 200rpx;
 }
 
 .mescroll-empty .empty-tip {

@@ -11,32 +11,36 @@
 			</view>
 			<view class="rs-info">
 				<view class="rs-title">{{registerStatus.title}}</view>
-				<view class="rs-tips">{{registerStatus.tips}}</view>
+				<view class="rs-tips" v-show="registerStatus.tips">{{registerStatus.tips}}</view>
 			</view>
 		</view>
 
 		<!-- 挂号信息 -->
 		<view class="register-info">
 			<view class="ri-content">
-				<info-row label="预约医生" :val="registResult.doctorName + titleName">
+				<info-row label="预约医生" :val="(registResult.doctorName || '') + titleName">
 				</info-row>
-				<info-row label="就诊科室" :val="registResult.deptName + ' - ' + registResult.orgName"></info-row>
+				<info-row label="就诊科室" :val="(registResult.deptName || '') + ' - ' + (registResult.orgName || '')"></info-row>
 				<info-row label="就诊时间" :val="registResult.consultationTime">
 					<template v-slot:val>
 						<view class="val-status grey">({{ transformWhen }})</view>
 					</template>
 				</info-row>
-				<info-row label="就诊号序" :val="registResult.numNo"></info-row>
-				<info-row label="预约单号" :val="registResult.registId"></info-row>
+				<info-row label="就诊号序" :val="registResult.numNo || ''"></info-row>
+				<info-row label="预约单号" :val="registResult.registId ||''"></info-row>
 				<!-- <info-row label="取号密码" val="" ></info-row> -->
-				<info-row label="挂号诊金" :val="'￥'+registResult.payableAmt"></info-row>
-				<info-row label="医保支付" v-if="registResult.insuOption != null" :val="'￥'+registResult.insuAmt">
-					<template v-if="insuStatus">
+				<info-row label="挂号诊金" :val="'￥'+(registResult.payableAmt || '0.00')">
+					<template v-show="paySuccess">
+						<view slot="val" class="val-status grey" >(<text class="vs-text" :class="[paySuccess.cls]">{{paySuccess.text}}</text>)</view>
+					</template>
+				</info-row>
+				<info-row label="医保支付" v-if="registResult.insuOption != null" :val="'￥'+(registResult.insuAmt || '0.00')">
+					<template v-show="insuStatus">
 						<view slot="val" class="val-status grey" >(<text class="vs-text" :class="[insuStatus.cls]">{{insuStatus.text}}</text>{{insuStatus.label || ''}})</view>
 					</template>
 				</info-row>
-				<info-row label="自费支付" :val="'￥'+registResult.selfAmt">
-					<template v-if="selfStatus">
+				<info-row label="自费支付" :val="'￥'+(registResult.selfAmt || '0.00')">
+					<template v-show="selfStatus">
 						<view slot="val" class="val-status grey" >(<text class="vs-text" :class="[selfStatus.cls]">{{selfStatus.text}}</text>)</view>
 					</template>
 				</info-row>
@@ -58,20 +62,20 @@
 		</view>
 
 		<!-- 操作 -->
-		<view class="bottom-options flex-r-center">
-			<template v-if="registStatus == 'PAY_UNKNOWN'">
+		<view class="bottom-options flex-r-center" v-if="showOptions">
+			<template v-if="showRetryQuery">
 				<jd-button size="lg" style="flex:1" :btn-style="{flex:1,height:'98rpx',borderRadius: 0}" type="primary" @submit="retryQuery">重试查询支付结果</jd-button>
 			</template>
-			<template v-if="(registStatus == 'REGIST_FAILED' || registStatus == 'PAY_FAILED') && !refundSuccess">
+			<template v-if="showRetryRefund">
 				<jd-button size="lg" style="flex:1" :btn-style="{flex:1,height:'96rpx',borderRadius: 0,color:'#333333'}" @submit="retry">重试退款</jd-button>
 			</template>
-			<template v-if="registStatus == 'REGIST_UNKNOWN'">
-				<jd-button size="lg" style="flex:1" :btn-style="{flex:1,height:'98rpx',borderRadius: 0}" type="primary"  @submit="retryConfirm">重试确认预约结果</jd-button>
+			<template v-if="showRetryConfirm">
+				<jd-button size="lg" style="flex:1" :btn-style="{flex:1,height:'98rpx',borderRadius: 0}" type="primary"  @submit="retryConfirm">重试确认{{ registType }}结果</jd-button>
 			</template>
-			<template v-if="registStatus == 'REGIST_SUCCEED' || ((registStatus == 'REGIST_FAILED' || registStatus == 'PAY_FAILED') && refundSuccess)">
+			<template v-if="showToHome">
 				<jd-button size="lg" style="width:39%;" :btn-style="returnHomeBtnStyle" @submit="toHome">返回首页</jd-button>
-				<jd-button size="lg" style="flex:1" :btn-style="{flex:1,height:'98rpx',borderRadius: 0}" type="primary" v-if="registStatus == 'REGIST_SUCCEED'" @submit="toRegistDetails">查看{{ registType }}详情</jd-button>
-				<jd-button size="lg" style="flex:1" :btn-style="{flex:1,height:'98rpx',borderRadius: 0}" type="primary" v-if="(registStatus == 'REGIST_FAILED' || registStatus == 'PAY_FAILED') && refundSuccess" @submit="toRegist">重新{{ registType }}</jd-button>
+				<jd-button size="lg" style="flex:1" :btn-style="{flex:1,height:'98rpx',borderRadius: 0}" type="primary" v-if="registSuccess" @submit="toRegistDetails">查看{{ registType }}详情</jd-button>
+				<jd-button size="lg" style="flex:1" :btn-style="{flex:1,height:'98rpx',borderRadius: 0}" type="primary" v-if="showAgainRegist" @submit="toRegist">重新{{ registType }}</jd-button>
 			</template>
 		</view>
 		<u-mask :show="showLoading" :mask-click-able="false">
@@ -158,10 +162,12 @@
 		methods: {
 			// 挂号单结果查询
 			async findRegistResult(){
+				// let param = {"registId":"12089689246849843200","userId":"12086777504707444736"}
+				let param = { registId: this.registId, userId: this.userInfo.userId }
 				if(this.registId==null || this.registId==''){
 					return
 				}
-				let {page} = await this.$api.ihosp_regist_query({ registId: this.registId, userId: this.userInfo.userId })
+				let {page} = await this.$api.ihosp_regist_query(param)
 				console.log('挂号结果：',page)
 				let list = page && page.records || []
 				this.registResult = list.length>0 && list[0] || {}

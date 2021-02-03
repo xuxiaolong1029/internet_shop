@@ -2,7 +2,7 @@
     <view class="jd-alert-container">
         <u-mask :show="show" @click="close" :mask-click-able="maskClickAble" :custom-style="{background:'rgba(0, 0, 0, 0.5)'}">
 			<view class="warp">
-				<view class="rect" @tap.stop :class="{'show-close':showClose}" :style="{'width':width,'height':height,'border-radius':borderRadius,'background-color':backgroundColor}">
+				<view class="rect" @tap.stop :class="{'show-close':showClose}" :style="{'width':width+'rpx','bottom':bottom+'rpx','left':(750-width)/2+'rpx','right':(750-width)/2+'rpx','height':height,'border-radius':borderRadius,'background-color':backgroundColor}">
 					<slot></slot>
 					<view class="close-btn" v-if="showClose" @click="close"></view>
 				</view>
@@ -24,12 +24,12 @@
 				default: true
 			},
 			width:{
-				type: String,
-				default: '100%'
+				type: String|Number,
+				default: '640'
 			},
 			height:{
 				type: String,
-				default: '724rpx'
+				default: '720rpx'
 			},
 			borderRadius:{
 				type: String,
@@ -43,6 +43,10 @@
 				type: Boolean,
 				default: false
 			},
+			bottom:{
+				type: Number|String,
+				default:280
+			}
         },
 		methods: {
 			close(){
@@ -59,26 +63,16 @@
 			align-items: center;
 			justify-content: center;
 			width: 100%;
-			height: 100%;
-			padding: 0 55rpx;
-		}
-		.rect {
-			width: 100%;
-			height: 724rpx;
-			border-radius: 20rpx;
-			position: relative;
-			&.show-close{
-				margin-top: -60rpx;
+			height: 100vh;
+			.rect {
+				position: absolute;
+				.close-btn{
+					width: 60rpx;
+					height: 60rpx;
+					@include bg-image('img/x');
+					margin:60rpx auto 0;
+				}
 			}
-		}
-		.close-btn{
-			width: 60rpx;
-			height: 60rpx;
-			@include bg-image('img/x');
-			position: absolute;
-			bottom: -120rpx;
-			left: 50%;
-			margin-left: -30rpx;
 		}
     }
 </style>

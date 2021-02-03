@@ -6,7 +6,7 @@
                     <info-row label="患者单号" :val="feeSubInfo.patientId||''"></info-row>
                     <info-row label="患者姓名" :val="feeSubInfo.patientName||''"></info-row>
                     <info-row label="开单医生" :val="feeSubInfo.doctorName||''">
-                        <text slot="val">({{orgName}} {{feeSubInfo.deptName}})</text>
+                        <text slot="val">(<!--{{orgName}}--> {{feeSubInfo.deptName}})</text>
                     </info-row>
                     <info-row label="开单时间" :val="feeSubInfo.orderTime||''"></info-row>
                 </view>
@@ -28,12 +28,12 @@
                 <view class="" slot="body">
                     <info-row label="支付类型" :val="orderPayInfo.paymentTypeName||''"></info-row>
                     <info-row v-if="orderPayInfo.paymentType!=='SELF'" label="医保支付" :val="'￥'+orderPayInfo.insuAmt||''">
-                        <text slot="val" :class="orderPayInfo.insuStatus">({{orderPayInfo.insuStatus||''}})</text>
+                        <text slot="val" :class="orderPayInfo.insuStatus.code">({{orderPayInfo.insuStatus.value||''}})</text>
                     </info-row>
                     <info-row label="自费支付" :val="'￥'+orderPayInfo.selfAmt||''">
                         <text slot="val" :class="orderPayInfo.selfStatus.code">({{orderPayInfo.selfStatus.value||''}})</text>
                     </info-row>
-                    <info-row label="支付方式" :val="orderPayInfo.payOption||''"></info-row>
+                    <info-row label="支付方式" :val="orderPayInfo.selfOptionName||''"></info-row>
                     <info-row label="支付单号" :val="orderPayInfo.outTradeNo||''"></info-row>
                     <info-row label="支付时间" :val="orderPayInfo.payTime||''"></info-row>
                 </view>
@@ -61,7 +61,8 @@
                 feeSubInfo:null,
                 orderPayInfo:null,
                 feeSubDetailInfoList: [],
-                query:{}
+                query:{},
+                statusTimer:null
             };
         },
         computed:{
@@ -80,6 +81,12 @@
                 }
             }
         },
+        onUnload(){
+            clearTimeout(this.statusTimer)
+        },
+        onHide(){
+            clearTimeout(this.statusTimer)
+        },
         onLoad(par){
             this.query = par
             uni.getStorage({//获取本地缓存
@@ -96,7 +103,16 @@
                 let data = await this.$api.fee_query_detail(par);
                 this.feeSubInfo = {...data.feeSubInfo};
                 this.orderPayInfo = {...data.orderPayInfo};
-                this.feeSubDetailInfoList = [...data.feeSubDetailInfoList];
+                if(this.feeSubDetailInfoList.length===0){
+                    this.feeSubDetailInfoList = [...data.feeSubDetailInfoList];
+                }
+                if(['FEE_PROCESSING','PAY_PROCESSING'].includes(this.feeSubInfo.status)){
+                    this.statusTimer = setTimeout(()=>{
+                        this.getPayDetails(this.query)
+                    },3000)
+                }else{
+                    clearTimeout(this.statusTimer)
+                }
                 if(modal==='modal'){
                     this.$refs.jdModal.cancel();
                     let modalMessage={};

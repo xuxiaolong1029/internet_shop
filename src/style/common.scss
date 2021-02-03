@@ -6,8 +6,6 @@
 .hover-style{
 	opacity: 0.8;
 }
-//.border-b{border-bottom: solid 1rpx $border-color-d9d9d9;}
-//.border-t{border-top: solid 1rpx $border-color-d9d9d9;}
 
 
 /* 弹性布局 */
@@ -22,7 +20,7 @@
 .flex-c-center{display: flex;flex-direction: column;justify-content: center;align-items: center}
 
 .page-top-border{
-	border-top: 1rpx solid $line;
+	@include border-1px();
 }
 .search-default{
 	background-color: #FFFFFF;

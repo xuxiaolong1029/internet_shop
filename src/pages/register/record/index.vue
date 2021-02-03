@@ -2,8 +2,8 @@
 	<view class="page-record-index">
 		<view class="page-record-dropdown" :class="{'is-dropdown':showDropdown}">
 			<u-dropdown @open="showDropdown = true" @close="showDropdown=false" title-size="32" height="88">
-				<u-dropdown-item @change="getMyRecord" v-model="patientId" title="选择就诊人" :options="patientList"></u-dropdown-item>
-				<u-dropdown-item @change="getMyRecord" v-model="tradeType" title="选择类型" :options="registTypeList"></u-dropdown-item>
+				<u-dropdown-item @change="getMyRecord" height="500" v-model="patientId" title="选择就诊人" :options="patientList"></u-dropdown-item>
+				<u-dropdown-item @change="getMyRecord" height="500" v-model="tradeType" title="选择类型" :options="registTypeList"></u-dropdown-item>
 			</u-dropdown>
 		</view>
 		<view class="page-record-mescroll">
@@ -99,12 +99,18 @@
 				page:{},
 				nowTimes:{},
 				showDropdown:false,
-				timer:{}
+				statusTimer:null
 			};
 		},
 		onLoad(){
 			this.userInfo = uni.getStorageSync('userInfo');
 			this.getOutpatientInfo();
+		},
+		onUnload(){
+			clearTimeout(this.statusTimer)
+		},
+		onHide(){
+			clearTimeout(this.statusTimer)
 		},
 		methods:{
 			async getOutpatientInfo(){
@@ -122,7 +128,7 @@
 				this.page = page;
 				this.getMyRecord()
 			},
-			async getMyRecord(){
+			async getMyRecord(reload){
 				await this.$api.ihosp_regist_query({
 					patientId:this.patientId,
 					userId:this.userInfo.userId,
@@ -135,7 +141,19 @@
 					if(this.page.num === 1){
 						this.recordList = []
 					}
-					this.recordList=this.recordList.concat(list)
+					if(reload==='reload'){
+						this.recordList = list
+					}else{
+						this.recordList = this.recordList.concat(list)
+					}
+					if(this.recordList.find(item=>item.registerStatus.code.includes('PROCESSING'))){
+						this.statusTimer = setTimeout(()=>{
+							this.page={num:1, size:10};
+							this.getMyRecord(reload)
+						},3000)
+					}else{
+						clearTimeout(this.statusTimer)
+					}
 				}).catch(()=>{
 					//联网失败, 结束加载
 					this.mescroll.endErr();
@@ -171,10 +189,17 @@
 						this.getMyRecord()
 					},
 					//再次下单
-					'again':(item)=>{
-						uni.navigateTo({
-							url: '/pages/register/selectDepartment/index'
-						});
+					'again':async (item)=>{
+						let res = await this.$api.ihosp_doctor_sup_num({orgCode:item.orgCode,deptCode:item.deptCode,deptLast:config.common.DEPT_LAST.yes, doctorCode: item.doctorCode});
+						if(Number(res.code)===200&&Array.isArray(res.doctorSupDateList)&&res.doctorSupDateList.length>0){
+							uni.navigateTo({
+								url: `/pages/register/doctorPage/index?orgCode=${item.orgCode}&doctorCode=${item.doctorCode}&deptCode=${item.deptCode}&isPrompt=true`
+							})
+						}else{
+							uni.navigateTo({
+								url: `/pages/register/doctorPage/index?orgCode=${item.orgCode}&doctorCode=${item.doctorCode}&deptCode=${item.deptCode}&isPrompt=true`
+							})
+						}
 					}
 				};
 				return handle[type](item)

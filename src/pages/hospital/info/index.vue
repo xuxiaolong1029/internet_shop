@@ -100,7 +100,9 @@
                             this.$nextTick(() => {
                                 if(this.$refs.uReadMore) this.$refs.uReadMore.init();
                                 if(this.$refs.uReadMore1) this.$refs.uReadMore1.init();
-                                this.opacity = 1
+                                setTimeout(()=>{
+                                    this.opacity = 1
+                                },500)
                             })
                     }
                 })

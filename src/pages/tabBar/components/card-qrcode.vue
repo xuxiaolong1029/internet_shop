@@ -1,5 +1,5 @@
 <template>
-    <jd-alert-container :show="show" height="630rpx" width="570rpx" @close="closeAlert" background-color="transparent">
+    <jd-alert-container :show="show" height="630rpx" :width="570" @close="closeAlert" background-color="transparent">
         <view class="qrcode-page">
             <image class="image" src="../../../static/img/qrcodebg.png" mode="scaleToFill" />
             <view class="card-qrcode">
